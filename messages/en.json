@@ -1,0 +1,71 @@
+{
+  "navbar": {
+    "brand": "XUI",
+    "links": {
+      "components": "Components",
+      "templates": "Templates",
+      "showcase": "Showcase"
+    },
+    "signIn": "Sign In",
+    "lang": {
+      "en": "EN",
+      "ar": "العربية"
+    }
+  },
+  "hero": {
+    "tagline": "Next-Gen UI Library",
+    "titleLine1": "components for",
+    "titleLine2": "creative developers",
+    "subtitle": "Highly customizable animated components & backgrounds that drop into your project and instantly make it stand out",
+    "browseBtn": "Browse Components",
+    "githubBtn": "Star on GitHub",
+    "starCount": "14.8k"
+  },
+  "footer": {
+    "tagline": "Highly customizable animated UI components for creative developers.",
+    "products": {
+      "title": "Products",
+      "components": "Components",
+      "templates": "Templates",
+      "showcase": "Showcase",
+      "changelog": "Changelog"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "contact": "Contact"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "license": "License"
+    },
+    "copyright": "© 2025 XUI. All rights reserved.",
+    "madeWith": "Made with",
+    "madeFor": "for creative developers."
+  },
+  "laser": {
+    "scrollHint": "Scroll to fire laser",
+    "statusCharging": "SYSTEM CHARGING // FOCUSING OPTICS",
+    "statusActive": "HIGH-ENERGY LASER CORE // 100% DISCHARGE",
+    "card1Badge": "PERFORMANCE",
+    "card1Title": "Direct Canvas Pipeline",
+    "card1Desc": "High-throughput GPU acceleration with zero layout reflows.",
+    "card2Badge": "INTELLIGENCE",
+    "card2Title": "Kinetic Gaze Tracking",
+    "card2Desc": "Precision coordinate mapping with continuous adaptive lerping.",
+    "headline": "RAW SPEED. PURE PRECISION.",
+    "subheadline": "Unleash next-generation motion interfaces for web applications.",
+    "tag1": "120 FPS Native",
+    "tag2": "Zero Dependencies",
+    "tag3": "Fluid Kinetics"
+  },
+  "websites3D": {
+    "title": "Looking for a 3D Website?",
+    "showTemplates": "Show Templates",
+    "customRequest": "Custom Request"
+  }
+}
