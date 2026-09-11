@@ -53,12 +53,12 @@ export function CodeBlockCode({
   const lines = code.trim().split("\n");
 
   return (
-    <div className="relative overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-neutral-300 selection:bg-blue-600/30 selection:text-blue-200">
-      <pre className="m-0 flex flex-col font-mono">
+    <div className="relative overflow-x-auto p-3 sm:p-4 font-mono text-[11px] sm:text-[13px] leading-relaxed text-neutral-300 selection:bg-blue-600/30 selection:text-blue-200 touch-scroll-x no-scrollbar">
+      <pre className="m-0 flex flex-col font-mono min-w-max">
         {lines.map((line, idx) => (
           <div key={idx} className="table-row group">
             {showLineNumbers && (
-              <span className="table-cell select-none pr-4 text-right font-mono text-xs text-neutral-600 group-hover:text-neutral-500 w-8">
+              <span className="table-cell select-none pr-2 sm:pr-4 text-right font-mono text-[10px] sm:text-xs text-neutral-600 group-hover:text-neutral-500 w-6 sm:w-8 shrink-0">
                 {idx + 1}
               </span>
             )}

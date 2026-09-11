@@ -67,5 +67,36 @@
     "title": "Looking for a 3D Website?",
     "showTemplates": "Show Templates",
     "customRequest": "Custom Request"
+  },
+  "auth": {
+    "titleSignIn": "Welcome Back",
+    "titleSignUp": "Create Account",
+    "subtitleSignIn": "Continue crafting next-gen interfaces with XUI",
+    "subtitleSignUp": "Join the elite community of creative developers",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGithub": "Continue with GitHub",
+    "or": "or with email",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "email": "Email Address",
+    "emailPlaceholder": "name@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot password?",
+    "signInBtn": "Sign In",
+    "signUpBtn": "Create Account",
+    "loading": "Loading...",
+    "noAccount": "Don't have an account?",
+    "createOne": "Create one now",
+    "hasAccount": "Already have an account?",
+    "signInHere": "Sign in here",
+    "successSignUp": "Account created successfully! Check your inbox if confirmation is required.",
+    "errorGeneral": "An error occurred. Please try again.",
+    "userMenu": {
+      "profile": "Profile",
+      "myFavorites": "Saved Components",
+      "signOut": "Sign Out",
+      "account": "Account"
+    }
   }
 }

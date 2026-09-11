@@ -19,7 +19,7 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [copiedCli, setCopiedCli] = useState(false);
 
-  const title = locale === "ar" && component.titleAr ? component.titleAr : component.title;
+  const title = component.title;
   const cliCommand = `npx xui add ${component.id}`;
 
   const copyCliCommand = () => {
@@ -35,7 +35,7 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
 
   return (
     <div
-      dir={dir}
+      dir="ltr"
       className="min-h-screen bg-black text-white selection:bg-blue-600/30 selection:text-blue-200 overflow-x-hidden flex flex-col"
     >
       {/* ── Fixed Floating Navbar ── */}
@@ -47,52 +47,52 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
         <div className="absolute bottom-24 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[150px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full flex flex-col gap-6">
+      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-24 px-3.5 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full flex flex-col gap-5 sm:gap-6">
         {/* ── Navigation Header: Back Link + Breadcrumb ── */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-row items-center justify-between gap-3">
           <Link
             href="/components"
-            className="group flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition-all cursor-pointer"
+            className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.1] text-xs font-semibold text-neutral-300 hover:text-white transition-all cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-            <span>{locale === "ar" ? "العودة إلى المكونات" : "Back to Components"}</span>
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform shrink-0" />
+            <span>Back to Components</span>
           </Link>
 
           {/* Top Toggle Tabs: [ Preview ] and [ Code ] */}
-          <div className="flex items-center p-1 rounded-2xl bg-[#10121e]/90 backdrop-blur-2xl border border-white/[0.12] shadow-xl">
+          <div className="flex items-center p-1 rounded-2xl bg-[#10121e]/90 backdrop-blur-2xl border border-white/[0.12] shadow-xl shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab("preview")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === "preview"
                   ? "bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-[0_4px_20px_rgba(37,99,235,0.45)] border border-blue-400/40"
                   : "text-neutral-400 hover:text-white hover:bg-white/[0.06]"
               }`}
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Preview</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("code")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === "code"
                   ? "bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-[0_4px_20px_rgba(37,99,235,0.45)] border border-blue-400/40"
                   : "text-neutral-400 hover:text-white hover:bg-white/[0.06]"
               }`}
             >
-              <Code2 className="w-4 h-4" />
+              <Code2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Code</span>
             </button>
           </div>
         </div>
 
         {/* ── Component Title Header ── */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2.5">
             <span className="text-xs font-mono uppercase tracking-wider text-blue-400 font-semibold px-2.5 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30">
-              {locale === "ar" && component.categoryLabelAr ? component.categoryLabelAr : component.categoryLabel}
+              {component.categoryLabel}
             </span>
             <span className="text-xs text-neutral-500 font-mono">MIT Licensed</span>
           </div>
@@ -103,26 +103,26 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
 
         {/* ── One-Click CLI Installation Bar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:px-5 sm:py-3.5 rounded-2xl bg-[#0e101c]/90 backdrop-blur-xl border border-white/[0.12] shadow-xl">
-          <div className="flex items-center gap-2.5 font-mono text-xs sm:text-sm text-neutral-300">
+          <div className="flex items-center gap-2.5 font-mono text-xs sm:text-sm text-neutral-300 overflow-x-auto no-scrollbar">
             <Terminal className="w-4 h-4 text-blue-400 shrink-0" />
             <span className="text-neutral-500 select-none">$</span>
-            <span className="text-blue-300 font-semibold">{cliCommand}</span>
+            <span className="text-blue-300 font-semibold whitespace-nowrap">{cliCommand}</span>
           </div>
           <button
             type="button"
             onClick={copyCliCommand}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.22] border border-white/[0.12] text-xs font-semibold text-white transition-all cursor-pointer w-fit"
+            className="flex items-center self-end sm:self-auto gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.22] border border-white/[0.12] text-xs font-semibold text-white transition-all cursor-pointer shrink-0"
             title="Copy CLI command"
           >
             {copiedCli ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">{locale === "ar" ? "تم النسخ!" : "Copied!"}</span>
+                <span className="text-emerald-400">Copied!</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                <span>{locale === "ar" ? "نسخ الأمر" : "Copy CLI"}</span>
+                <span>Copy CLI</span>
               </>
             )}
           </button>

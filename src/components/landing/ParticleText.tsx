@@ -461,6 +461,19 @@ const ParticleText = ({
       if (trigger === "click") startGather(true);
     };
 
+    const handleTouchMove = (event: TouchEvent): void => {
+      if (!event.touches || event.touches.length === 0) return;
+      const touch = event.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = touch.clientX - rect.left;
+      pointer.y = touch.clientY - rect.top;
+      pointer.active = true;
+    };
+
+    const handleTouchEnd = (): void => {
+      pointer.active = false;
+    };
+
     const reduceMotionQuery = window.matchMedia?.(
       "(prefers-reduced-motion: reduce)"
     );
@@ -472,6 +485,9 @@ const ParticleText = ({
     canvas.addEventListener("pointerenter", handlePointerEnter);
     canvas.addEventListener("pointermove", handlePointerMove);
     canvas.addEventListener("pointerleave", handlePointerLeave);
+    canvas.addEventListener("touchstart", handleTouchMove, { passive: true });
+    canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
+    canvas.addEventListener("touchend", handleTouchEnd, { passive: true });
     canvas.addEventListener("click", handleClick);
 
     const resizeObserver = new ResizeObserver(queueSample);
@@ -488,6 +504,9 @@ const ParticleText = ({
       canvas.removeEventListener("pointerenter", handlePointerEnter);
       canvas.removeEventListener("pointermove", handlePointerMove);
       canvas.removeEventListener("pointerleave", handlePointerLeave);
+      canvas.removeEventListener("touchstart", handleTouchMove);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("touchend", handleTouchEnd);
       canvas.removeEventListener("click", handleClick);
 
       if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);

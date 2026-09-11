@@ -15,7 +15,7 @@ interface Config {
 }
 
 const DEFAULT_CONFIG: Config = {
-  color: "#00E5FF",
+  color: "#2563EB",
   speed: 0.35,
   frequency: 1.2,
   noise: 0.2,
@@ -50,9 +50,9 @@ export default function MacCodeCard() {
   };
 
   return (
-    <div className="w-[690px] max-w-[95vw] flex flex-col gap-3.5 font-sans pointer-events-auto">
+    <div className="w-[690px] max-w-[95vw] flex flex-col gap-2.5 sm:gap-3.5 font-sans pointer-events-auto mx-auto sm:mx-0">
       {/* ── 1. Separate Language Switcher Bar (Detached from Mac Window) ── */}
-      <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0a0c16]/85 backdrop-blur-2xl border border-white/[0.14] shadow-[0_12px_32px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2)] w-fit">
+      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-[#0a0c16]/85 backdrop-blur-2xl border border-white/[0.14] shadow-[0_12px_32px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2)] w-full sm:w-fit overflow-x-auto no-scrollbar">
         {FRAMEWORKS.map((fw) => {
           const isActive = activeFramework === fw.id;
           return (
@@ -60,9 +60,9 @@ export default function MacCodeCard() {
               key={fw.id}
               type="button"
               onClick={() => handleFrameworkChange(fw.id)}
-              className={`relative flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              className={`relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-[13px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? "bg-gradient-to-b from-white/[0.22] to-white/[0.10] text-white border border-white/[0.24] shadow-[0_4px_18px_rgba(0,216,255,0.28),inset_0_1px_0_rgba(255,255,255,0.4)]"
+                  ? "bg-gradient-to-b from-white/[0.22] to-white/[0.10] text-white border border-white/[0.24] shadow-[0_4px_18px_rgba(37,99,235,0.35),inset_0_1px_0_rgba(255,255,255,0.4)]"
                   : "text-neutral-400 hover:text-neutral-200 hover:bg-white/[0.06] border border-transparent"
               }`}
             >
@@ -214,7 +214,7 @@ export default function MacCodeCard() {
 
         {/* ── Taller IDE Code Body with Line Number Gutter ── */}
         <div
-          className={`relative z-10 flex p-6 sm:p-7 min-h-[540px] font-mono text-[13px] sm:text-[14px] leading-[2.1] select-text transition-all duration-200 ease-out overflow-x-auto ${
+          className={`relative z-10 flex p-3.5 sm:p-7 min-h-[320px] sm:min-h-[540px] max-h-[54vh] sm:max-h-none font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.1] select-text transition-all duration-200 ease-out overflow-x-auto overflow-y-auto no-scrollbar touch-scroll-x ${
             isFading
               ? "opacity-25 translate-y-1 blur-[2px]"
               : "opacity-100 translate-y-0 blur-none"
@@ -222,9 +222,9 @@ export default function MacCodeCard() {
         >
           {/* React Snippet */}
           {displayedFramework === "react" && (
-            <div className="flex w-full">
+            <div className="flex w-full min-w-max">
               {/* Line Numbers Gutter */}
-              <div className="flex flex-col text-neutral-600 select-none pr-5 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[13px] sm:text-[14px] leading-[2.05] sm:leading-[2.15] shrink-0">
+              <div className="flex flex-col text-neutral-600 select-none pr-3 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.15] shrink-0">
                 <span>01</span>
                 <span>02</span>
                 <span>03</span>
@@ -243,7 +243,7 @@ export default function MacCodeCard() {
               </div>
 
               {/* Code Lines */}
-              <div className="pl-5 sm:pl-7 text-neutral-300 w-full">
+              <div className="pl-3 sm:pl-7 text-neutral-300 w-full">
                 <p>
                   <span className="text-purple-400 font-semibold">import</span>{" "}
                   <span className="text-white">&#123; ColorBends &#125;</span>{" "}
@@ -322,8 +322,8 @@ export default function MacCodeCard() {
 
           {/* HTML / JS Snippet */}
           {displayedFramework === "html" && (
-            <div className="flex w-full">
-              <div className="flex flex-col text-neutral-600 select-none pr-5 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[13px] sm:text-[14px] leading-[2.05] sm:leading-[2.15] shrink-0">
+            <div className="flex w-full min-w-max">
+              <div className="flex flex-col text-neutral-600 select-none pr-3 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.15] shrink-0">
                 <span>01</span>
                 <span>02</span>
                 <span>03</span>
@@ -339,7 +339,7 @@ export default function MacCodeCard() {
                 <span>13</span>
               </div>
 
-              <div className="pl-5 sm:pl-7 text-neutral-300 w-full">
+              <div className="pl-3 sm:pl-7 text-neutral-300 w-full">
                 <p>
                   <span className="text-purple-400 font-semibold">&lt;script</span>{" "}
                   <span className="text-neutral-400">type</span>=
@@ -412,8 +412,8 @@ export default function MacCodeCard() {
 
           {/* Vue Snippet */}
           {displayedFramework === "vue" && (
-            <div className="flex w-full">
-              <div className="flex flex-col text-neutral-600 select-none pr-5 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[13px] sm:text-[14px] leading-[2.05] sm:leading-[2.15] shrink-0">
+            <div className="flex w-full min-w-max">
+              <div className="flex flex-col text-neutral-600 select-none pr-3 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.15] shrink-0">
                 <span>01</span>
                 <span>02</span>
                 <span>03</span>
@@ -430,7 +430,7 @@ export default function MacCodeCard() {
                 <span>14</span>
               </div>
 
-              <div className="pl-5 sm:pl-7 text-neutral-300 w-full">
+              <div className="pl-3 sm:pl-7 text-neutral-300 w-full">
                 <p>
                   <span className="text-purple-400 font-semibold">&lt;script</span>{" "}
                   <span className="text-neutral-400">setup</span>
@@ -496,8 +496,8 @@ export default function MacCodeCard() {
 
           {/* Svelte Snippet */}
           {displayedFramework === "svelte" && (
-            <div className="flex w-full">
-              <div className="flex flex-col text-neutral-600 select-none pr-5 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[13px] sm:text-[14px] leading-[2.05] sm:leading-[2.15] shrink-0">
+            <div className="flex w-full min-w-max">
+              <div className="flex flex-col text-neutral-600 select-none pr-3 sm:pr-7 border-r border-white/[0.08] text-right font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.15] shrink-0">
                 <span>01</span>
                 <span>02</span>
                 <span>03</span>
@@ -513,7 +513,7 @@ export default function MacCodeCard() {
                 <span>13</span>
               </div>
 
-              <div className="pl-5 sm:pl-7 text-neutral-300 w-full">
+              <div className="pl-3 sm:pl-7 text-neutral-300 w-full">
                 <p>
                   <span className="text-purple-400 font-semibold">&lt;script&gt;</span>
                 </p>

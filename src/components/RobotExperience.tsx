@@ -128,11 +128,22 @@ export default function RobotExperience() {
     let drawX: number;
     let drawY: number;
 
+    const isPortrait = availableAspect < 1.05;
+
     if (availableAspect > imgAspect) {
       drawHeight = availableHeight;
       drawWidth = drawHeight * imgAspect;
       drawX = (canvasWidth - drawWidth) / 2;
       drawY = topClearance;
+    } else if (isPortrait) {
+      // Smart Portrait Focal Framing for Mobile:
+      // The robot in the 1920x1080 video is located on the right (center X = 76.2% of frame).
+      // On mobile screens, focus specifically on the robot's center and frame him majestically in the upper portion!
+      drawHeight = Math.max(availableHeight * 0.65, canvasWidth * 1.15);
+      drawWidth = drawHeight * imgAspect;
+      const eyeRatioX = 0.762;
+      drawX = (canvasWidth * 0.52) - (drawWidth * eyeRatioX);
+      drawY = topClearance - (0.04 * drawHeight);
     } else {
       drawWidth = canvasWidth;
       drawHeight = drawWidth / imgAspect;
@@ -490,14 +501,43 @@ export default function RobotExperience() {
       idleFrameProgressRef.current = currentHeroFrameRef.current;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (modeRef.current !== "hero" || scrollProgressRef.current > 0.08) return;
+      if (!e.touches || e.touches.length === 0) return;
+
+      const touch = e.touches[0];
+      isInteractingRef.current = true;
+      lastInteractionTimeRef.current = performance.now();
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const cursorX = Math.max(0, Math.min(1, touch.clientX / width));
+      const cursorY = Math.max(0, Math.min(1, touch.clientY / height));
+
+      const target = solveTargetFrame(
+        cursorX,
+        cursorY,
+        Math.round(currentHeroFrameRef.current)
+      );
+
+      targetHeroFrameRef.current = target;
+    };
+
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerdown", handlePointerMove, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchstart", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handlePointerLeave, { passive: true });
     document.addEventListener("mouseleave", handlePointerLeave);
     window.addEventListener("blur", handlePointerLeave);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchstart", handleTouchMove);
+      window.removeEventListener("touchend", handlePointerLeave);
       document.removeEventListener("mouseleave", handlePointerLeave);
       window.removeEventListener("blur", handlePointerLeave);
     };

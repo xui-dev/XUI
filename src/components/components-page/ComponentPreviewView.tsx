@@ -48,9 +48,8 @@ export default function ComponentPreviewView({
     }
   };
 
-  const title = locale === "ar" && component.titleAr ? component.titleAr : component.title;
-  const description =
-    locale === "ar" && component.descriptionAr ? component.descriptionAr : component.description;
+  const title = component.title;
+  const description = component.description;
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
@@ -64,7 +63,7 @@ export default function ComponentPreviewView({
       >
         {/* Live Canvas Area */}
         <div
-          className="relative min-h-[380px] sm:min-h-[440px] flex items-center justify-center p-8 transition-colors duration-300 overflow-hidden"
+          className="relative min-h-[300px] sm:min-h-[440px] flex items-center justify-center p-4 sm:p-8 transition-colors duration-300 overflow-hidden"
           style={{
             backgroundColor: "#090b14",
             backgroundImage: "radial-gradient(rgba(255,255,255,0.14) 1px, transparent 1px)",
@@ -78,46 +77,46 @@ export default function ComponentPreviewView({
         </div>
       </div>
 
-      {/* ── 2. Action & Stats Bar (Directly below preview as in wireframe) ── */}
+      {/* ── 2. Action & Stats Bar (Responsive 2-tier on mobile, 1-tier on desktop) ── */}
       <div
-        className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-[#0e101c]/80 backdrop-blur-xl border border-white/[0.1] shadow-xl"
+        className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 sm:px-5 sm:py-3 rounded-2xl bg-[#0e101c]/80 backdrop-blur-xl border border-white/[0.1] shadow-xl"
         style={{
           boxShadow:
             "0 15px 35px -10px rgba(0, 0, 0, 0.7), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12)",
         }}
       >
-        {/* Left Action Buttons: Like, Save, Share */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Tier 1: Action Buttons: Like, Save, Share (Full width grid on mobile) */}
+        <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-3 w-full sm:w-auto">
           {/* Like button */}
           <button
             type="button"
             onClick={handleLike}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold font-mono transition-all cursor-pointer border active:scale-95 ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-semibold font-mono transition-all cursor-pointer border active:scale-95 ${
               isLiked
                 ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]"
                 : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.1] text-neutral-300 hover:text-white"
             }`}
           >
             <Heart
-              className={`w-4 h-4 transition-transform ${
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${
                 isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-neutral-400"
               }`}
             />
-            <span>Like {likes}</span>
+            <span>{likes}</span>
           </button>
 
           {/* Save / Bookmark button */}
           <button
             type="button"
             onClick={handleSave}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border active:scale-95 ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border active:scale-95 ${
               isSaved
                 ? "bg-blue-600/20 border-blue-500/40 text-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
                 : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.1] text-neutral-300 hover:text-white"
             }`}
           >
             <Bookmark
-              className={`w-4 h-4 ${
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
                 isSaved ? "fill-blue-400 text-blue-400" : "text-neutral-400"
               }`}
             />
@@ -128,24 +127,24 @@ export default function ComponentPreviewView({
           <button
             type="button"
             onClick={handleShare}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
           >
             {copiedShare ? (
               <>
-                <Check className="w-4 h-4 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                 <span className="text-emerald-400">Copied!</span>
               </>
             ) : (
               <>
-                <Share2 className="w-4 h-4 text-neutral-400" />
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400" />
                 <span>Share</span>
               </>
             )}
           </button>
         </div>
 
-        {/* Right Stats: Views & Creator Attribution */}
-        <div className="flex items-center gap-4">
+        {/* Tier 2: Stats & Creator Attribution */}
+        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/[0.06] w-full sm:w-auto">
           {/* Views count */}
           <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono">
             <Eye className="w-4 h-4 text-neutral-500" />
@@ -155,12 +154,12 @@ export default function ComponentPreviewView({
           {/* Hairline divider */}
           <div className="w-px h-4 bg-white/10 hidden sm:block" />
 
-          {/* Creator Attribution (Cree by aymen as in wireframe) */}
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+          {/* Creator Attribution */}
+          <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08]">
             <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
               {component.author.charAt(0)}
             </div>
-            <span className="text-xs text-neutral-300 font-medium">
+            <span className="text-[11px] sm:text-xs text-neutral-300 font-medium">
               Created by <strong className="text-white font-semibold">{component.author}</strong>
             </span>
           </div>
@@ -179,7 +178,7 @@ export default function ComponentPreviewView({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-mono uppercase tracking-wider text-blue-400 font-semibold px-2.5 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30">
-                {locale === "ar" && component.categoryLabelAr ? component.categoryLabelAr : component.categoryLabel}
+                {component.categoryLabel}
               </span>
               <span className="text-xs text-neutral-500 font-mono">Production Ready</span>
             </div>

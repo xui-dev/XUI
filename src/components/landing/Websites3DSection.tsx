@@ -8,33 +8,29 @@ import { useLanguage } from "@/context/LanguageContext";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function Websites3DSection() {
-  const { messages, locale, dir } = useLanguage();
+  const { messages } = useLanguage();
   const t = messages.websites3D || {
-    title: locale === "ar" ? "هل تبحث عن موقع 3D ؟" : "Looking for a 3D Website?",
-    showTemplates: locale === "ar" ? "عرض القوالب" : "Show Templates",
-    customRequest: locale === "ar" ? "طلب مخصص" : "Custom Request",
+    title: "Looking for a 3D Website?",
+    showTemplates: "Show Templates",
+    customRequest: "Custom Request",
   };
 
   const handleCustomRequest = () => {
-    const subject = encodeURIComponent(
-      locale === "ar"
-        ? "طلب تصميم موقع ثلاثي الأبعاد مخصص"
-        : "Custom 3D Website Request"
-    );
+    const subject = encodeURIComponent("Custom 3D Website Request");
     window.location.href = `mailto:contact@xui.dev?subject=${subject}`;
   };
 
   return (
     <section
       id="3d-websites"
-      dir={dir}
+      dir="ltr"
       className="relative w-full pt-32 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center bg-black overflow-hidden select-none"
     >
       <div className="relative z-10 w-full max-w-5xl flex flex-col items-center">
         {/* ── 1. Title with BlurText (Generous Headroom below Navbar) ── */}
         <div className="w-full flex justify-center text-center mb-10 sm:mb-14">
           <BlurText
-            key={locale}
+            key={t.title}
             text={t.title}
             delay={90}
             animateBy="words"
@@ -91,13 +87,7 @@ export default function Websites3DSection() {
 
             {/* Micro-capsule Arrow Track */}
             <span className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-black/[0.07] group-hover:bg-black group-hover:text-white text-neutral-800 transition-all duration-200">
-              <ArrowRight
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  dir === "rtl"
-                    ? "rotate-180 group-hover:-translate-x-0.5"
-                    : "group-hover:translate-x-0.5"
-                }`}
-              />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </span>
           </Link>
 

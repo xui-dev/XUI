@@ -77,14 +77,14 @@ export default function ComponentCodeView({
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* ── Top Bar: Framework Selector & Download Actions ── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-2.5 rounded-2xl bg-[#0d0f1a]/85 backdrop-blur-2xl border border-white/[0.12] shadow-xl">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 sm:p-2.5 rounded-2xl bg-[#0d0f1a]/85 backdrop-blur-2xl border border-white/[0.12] shadow-xl">
         {/* Framework Tabs Switcher */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 touch-scroll-x">
           {/* 1. React */}
           <button
             type="button"
             onClick={() => setActiveFramework("react")}
-            className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+            className={`relative flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
               activeFramework === "react"
                 ? "bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-[0_0_20px_rgba(37,99,235,0.35)]"
                 : "text-neutral-400 hover:text-white hover:bg-white/[0.06] border border-transparent"
@@ -185,7 +185,7 @@ export default function ComponentCodeView({
 
           {isDownloadOpen && (
             <div
-              className="absolute right-0 top-full mt-2 w-48 p-1.5 rounded-2xl bg-[#0f111e]/95 backdrop-blur-2xl border border-white/[0.14] shadow-2xl z-50 flex flex-col gap-1"
+              className="absolute right-0 top-full mt-2 w-48 max-w-[calc(100vw-2.5rem)] p-1.5 rounded-2xl bg-[#0f111e]/95 backdrop-blur-2xl border border-white/[0.14] shadow-2xl z-50 flex flex-col gap-1"
               style={{
                 boxShadow:
                   "0 20px 40px -10px rgba(0, 0, 0, 0.9), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15)",

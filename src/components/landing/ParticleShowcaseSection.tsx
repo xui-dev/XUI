@@ -49,11 +49,11 @@ export default function ParticleShowcaseSection({
     >
       {/* ── Ambient Radial Royal Blue Nebula ── */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.18)_0%,rgba(79,9,237,0.12)_40%,transparent_70%)] blur-[120px]" />
+        <div className="w-[360px] sm:w-[700px] h-[360px] sm:h-[700px] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.30)_0%,rgba(79,9,237,0.18)_40%,transparent_70%)] blur-[90px] sm:blur-[120px]" />
       </div>
 
       {/* ── Progressive Phrase Pills Navigator ── */}
-      <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 mb-6">
+      <div className="relative z-10 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-4 sm:mb-8 max-w-lg px-2">
         {PHRASES.map((phrase, idx) => {
           const isCurrent = currentIdx === idx;
           return (
@@ -61,10 +61,10 @@ export default function ParticleShowcaseSection({
               key={phrase.id}
               type="button"
               onClick={() => setCurrentIdx(idx)}
-              className={`px-3 py-1 rounded-xl text-xs font-mono font-medium transition-all duration-300 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium transition-all duration-300 cursor-pointer ${
                 isCurrent
-                  ? "bg-blue-600/25 text-blue-300 border border-blue-500/40 shadow-[0_0_15px_rgba(37,99,235,0.35)] scale-105"
-                  : "bg-white/[0.03] text-neutral-400 hover:text-white hover:bg-white/[0.08] border border-white/[0.08]"
+                  ? "bg-blue-600/30 text-blue-200 border border-blue-500/50 shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-105 font-bold"
+                  : "bg-white/[0.04] text-neutral-400 hover:text-white hover:bg-white/[0.08] border border-white/[0.08]"
               }`}
             >
               {phrase.label}
@@ -74,22 +74,22 @@ export default function ParticleShowcaseSection({
       </div>
 
       {/* ── Particle Text Stage ── */}
-      <div className="relative z-10 w-full max-w-5xl h-[280px] sm:h-[360px] flex items-center justify-center">
+      <div className="relative z-10 w-full max-w-5xl h-[280px] sm:h-[380px] flex items-center justify-center px-3 my-2">
         <ParticleText
           key={currentPhrase.id}
           text={currentPhrase.text}
-          particleSize={2.4}
-          density={4}
-          color="#f8fafc"
-          highlightColor="#2563EB"
-          scatter={200}
+          particleSize={3.0}
+          density={2.5}
+          color="#ffffff"
+          highlightColor="#3B82F6"
+          scatter={190}
           gatherDuration={1500}
-          stagger={400}
-          pointerRepel={45}
-          repelRadius={130}
+          stagger={380}
+          pointerRepel={50}
+          repelRadius={140}
           idleDrift={0.8}
           trigger="mount"
-          fontSize="clamp(2.8rem, 9vw, 7.5rem)"
+          fontSize="clamp(3.6rem, 14vw, 8rem)"
           fontWeight={900}
           fontFamily="inherit"
           glow={true}
@@ -97,25 +97,21 @@ export default function ParticleShowcaseSection({
       </div>
 
       {/* ── Exploratory Call to Action ── */}
-      <div className="relative z-10 mt-6 flex flex-col sm:flex-row items-center gap-4">
+      <div className="relative z-10 mt-4 sm:mt-8 flex flex-col sm:flex-row items-center gap-4">
         <Link
           href="/components"
-          className="relative group overflow-hidden h-12 px-7 rounded-2xl
-                     inline-flex items-center gap-3 text-sm font-semibold tracking-tight text-white
+          className="relative group overflow-hidden h-11 sm:h-12 px-6 sm:px-7 rounded-2xl
+                     inline-flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold tracking-tight text-white
                      bg-gradient-to-r from-blue-600 to-indigo-600
                      border border-blue-400/30
-                     shadow-[0_0_30px_rgba(37,99,235,0.45),inset_0_1px_1px_rgba(255,255,255,0.3)]
-                     hover:shadow-[0_0_45px_rgba(37,99,235,0.65),inset_0_1px_1px_rgba(255,255,255,0.4)]
+                     shadow-[0_0_30px_rgba(37,99,235,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)]
+                     hover:shadow-[0_0_45px_rgba(37,99,235,0.7),inset_0_1px_1px_rgba(255,255,255,0.4)]
                      hover:scale-[1.02] active:scale-[0.98]
                      transition-all duration-200 cursor-pointer"
         >
           <Layers className="w-4 h-4 text-blue-200" />
-          <span>{locale === "ar" ? "استكشف مكتبة المكونات" : "Explore Component Library"}</span>
-          <ArrowRight
-            className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${
-              dir === "rtl" ? "rotate-180 group-hover:-translate-x-1" : ""
-            }`}
-          />
+          <span>Explore Component Library</span>
+          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
     </section>

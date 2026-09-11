@@ -16,12 +16,9 @@ export interface ComponentItem {
   id: string;
   slug: string;
   title: string;
-  titleAr?: string;
   description: string;
-  descriptionAr?: string;
   category: ComponentCategory;
   categoryLabel: string;
-  categoryLabelAr?: string;
   author: string;
   authorHandle: string;
   authorAvatar: string;
@@ -40,15 +37,15 @@ export const CATEGORIES = [
   { id: "all", label: "Overview", labelAr: "نظرة عامة" },
   { id: "checkboxes", label: "Checkboxes", labelAr: "مربعات الاختيار" },
   { id: "toggle-switches", label: "Toggle switches", labelAr: "مفاتيح التبديل" },
-  { id: "cards", label: "Cards", labelAr: "بطاقات" },
+  { id: "cards", label: "Cards", labelAr: "البطاقات" },
   { id: "loaders", label: "Loaders", labelAr: "مؤشرات التحميل" },
   { id: "inputs", label: "Inputs", labelAr: "حقول الإدخال" },
-  { id: "forms", label: "Forms", labelAr: "نماذج" },
-  { id: "patterns", label: "Patterns", labelAr: "أنماط وتصاميم" },
-  { id: "footer", label: "Footer", labelAr: "تذييل الصفحة" },
-  { id: "navbar", label: "Navbar", labelAr: "أشرطة تنقل" },
-  { id: "background", label: "Backgrounds", labelAr: "خلفيات" },
-  { id: "3d-web-templates", label: "3D Web Templates", labelAr: "قوالب مواقع 3D" },
+  { id: "forms", label: "Forms", labelAr: "النماذج" },
+  { id: "patterns", label: "Patterns", labelAr: "الأنماط والتأثيرات" },
+  { id: "footer", label: "Footer", labelAr: "التذييل" },
+  { id: "navbar", label: "Navbar", labelAr: "شريط التنقل" },
+  { id: "background", label: "Backgrounds", labelAr: "الخلفيات" },
+  { id: "3d-web-templates", label: "3D Web Templates", labelAr: "قوالب ثلاثية الأبعاد" },
 ] as const;
 
 export const COMPONENTS_DATA: ComponentItem[] = [
@@ -56,12 +53,9 @@ export const COMPONENTS_DATA: ComponentItem[] = [
     id: "dynamic-floating-dock",
     slug: "dynamic-floating-dock",
     title: "Floating Liquid Dock",
-    titleAr: "شريط التنقل الزجاجي العائم",
     description: "Smooth Apple-inspired floating navigation dock with magnification kinetics and specular glass reflections.",
-    descriptionAr: "شريط تنقل عائم مستوحى من نظام آبل مع تكبير فيزيائي متناسق وانعكاسات زجاجية ناعمة.",
     category: "navbar",
     categoryLabel: "Navbar",
-    categoryLabelAr: "أشرطة تنقل",
     author: "Aymen",
     authorHandle: "@aymen_dev",
     authorAvatar: "/XUI.png",

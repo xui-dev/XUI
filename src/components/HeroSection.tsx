@@ -18,26 +18,26 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
     <div
       dir={dir}
       style={style}
-      className={`absolute inset-0 z-20 flex flex-col justify-center px-6 sm:px-12 lg:px-20 xl:px-28 pointer-events-none select-none ${className}`}
+      className={`absolute inset-0 z-20 flex flex-col justify-end sm:justify-center pb-8 sm:pb-0 px-5 sm:px-12 lg:px-20 xl:px-28 pointer-events-none select-none ${className}`}
     >
-      <div className="max-w-2xl flex flex-col items-start gap-6 lg:gap-8">
-        {/* 1. Large Hero Logo (Red Circle in user markup) with subtle electric blue aura */}
-        <div className="relative inline-flex items-center pointer-events-auto group mb-2">
+      <div className="max-w-2xl flex flex-col items-start gap-3 sm:gap-6 lg:gap-8">
+        {/* 1. Hero Logo (Desktop only - mobile already has logo in navbar & robot chest) */}
+        <div className="hidden sm:inline-flex relative items-center pointer-events-auto group mb-1 sm:mb-2">
           {/* Ambient electric blue aura from robot's eye color */}
-          <div className="absolute -inset-6 bg-[radial-gradient(ellipse_at_center,rgba(64,106,218,0.4)_0%,rgba(0,162,255,0.15)_45%,transparent_75%)] blur-2xl pointer-events-none" />
+          <div className="absolute -inset-6 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.4)_0%,rgba(0,162,255,0.15)_45%,transparent_75%)] blur-2xl pointer-events-none" />
 
           <Link
             href="/"
             className="relative flex items-center transition-transform duration-300 hover:scale-[1.03]"
             aria-label="XUI Brand"
           >
-            <XUILogo height={76} color="#ffffff" />
+            <XUILogo height={74} color="#ffffff" />
           </Link>
         </div>
 
-        {/* 2. Main Headline (Exact phrasing from screenshot) */}
+        {/* 2. Main Headline */}
         <div className="flex flex-col">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.08] text-balance">
+          <h1 className="text-2xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.14] text-balance">
             <span className="block">{t.titleLine1}</span>
             <span className="block bg-gradient-to-r from-white via-white to-neutral-300 bg-clip-text text-transparent">
               {t.titleLine2}
@@ -46,38 +46,32 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
         </div>
 
         {/* 3. Subtitle Paragraph */}
-        <p className="text-sm sm:text-base lg:text-lg text-neutral-400 font-normal leading-relaxed max-w-lg text-balance">
+        <p className="text-xs sm:text-base lg:text-lg text-neutral-300 sm:text-neutral-400 font-normal leading-relaxed max-w-sm sm:max-w-lg line-clamp-2 sm:line-clamp-none">
           {t.subtitle}
         </p>
 
         {/* 4. Action Buttons (Ultra-Premium Handcrafted CTAs) */}
-        <div className="flex flex-wrap items-center gap-3.5 sm:gap-4 pt-2 pointer-events-auto">
+        <div className="flex flex-row items-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 pointer-events-auto">
           {/* Primary CTA: Browse Components (Luminous Porcelain Keycap with Interactive Capsule) */}
           <Link
             href="/components"
-            className="relative group overflow-hidden h-11 sm:h-12 px-5 sm:px-6 rounded-[14px]
-                       inline-flex items-center gap-3 text-xs sm:text-sm font-semibold tracking-tight text-neutral-950
+            className="relative group overflow-hidden h-10 sm:h-12 px-4 sm:px-6 rounded-[14px]
+                       inline-flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold tracking-tight text-neutral-950
                        bg-gradient-to-b from-white via-[#f7f7f8] to-[#e4e4e9]
                        border border-white/90
                        shadow-[0_1px_2px_rgba(0,0,0,0.3),0_8px_24px_-4px_rgba(255,255,255,0.25),inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_0_rgba(0,0,0,0.08)]
                        hover:shadow-[0_2px_4px_rgba(0,0,0,0.35),0_14px_32px_-4px_rgba(255,255,255,0.4),inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_0_rgba(0,0,0,0.08)]
                        hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]
-                       transition-all duration-200 ease-out cursor-pointer"
+                       transition-all duration-200 ease-out cursor-pointer shrink-0"
           >
             {/* Diagonal Light Sweep Sheen */}
             <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/60 to-transparent" />
 
-            <span className="relative z-10">{t.browseBtn}</span>
+            <span className="relative z-10 whitespace-nowrap">{t.browseBtn}</span>
 
             {/* Micro-capsule Arrow Track */}
-            <span className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-black/[0.07] group-hover:bg-black group-hover:text-white text-neutral-800 transition-all duration-200">
-              <ArrowRight
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  dir === "rtl"
-                    ? "rotate-180 group-hover:-translate-x-0.5"
-                    : "group-hover:translate-x-0.5"
-                }`}
-              />
+            <span className="relative z-10 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-black/[0.07] group-hover:bg-black group-hover:text-white text-neutral-800 transition-all duration-200">
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </span>
           </Link>
 
@@ -86,21 +80,21 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
             href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative group overflow-hidden h-11 sm:h-12 px-4 sm:px-5 rounded-[14px]
-                       inline-flex items-center gap-2.5 text-xs sm:text-sm font-medium tracking-tight text-neutral-200 hover:text-white
+            className="relative group overflow-hidden h-10 sm:h-12 px-3.5 sm:px-5 rounded-[14px]
+                       inline-flex items-center gap-2 text-xs sm:text-sm font-medium tracking-tight text-neutral-200 hover:text-white
                        bg-[#0d0e12]/85 hover:bg-[#15161e]/90 backdrop-blur-xl
                        border border-white/[0.12] hover:border-white/[0.25]
                        shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_24px_rgba(0,0,0,0.6)]
                        hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_28px_rgba(0,0,0,0.7)]
                        hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]
-                       transition-all duration-200 ease-out cursor-pointer"
+                       transition-all duration-200 ease-out cursor-pointer shrink-0"
           >
             {/* Top Specular Hairline Highlight */}
             <span className="pointer-events-none absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
             {/* GitHub Octocat Icon */}
             <svg
-              className="relative z-10 w-4 h-4 text-neutral-300 group-hover:text-white transition-colors"
+              className="relative z-10 w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-300 group-hover:text-white transition-colors"
               viewBox="0 0 24 24"
               fill="currentColor"
               aria-hidden="true"
@@ -112,10 +106,10 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
               />
             </svg>
 
-            <span className="relative z-10">{t.githubBtn}</span>
+            <span className="relative z-10 whitespace-nowrap">{t.githubBtn}</span>
 
             {/* Hairline Divider */}
-            <span className="w-px h-3.5 bg-white/15 group-hover:bg-white/25 transition-colors" />
+            <span className="w-px h-3 sm:h-3.5 bg-white/15 group-hover:bg-white/25 transition-colors" />
 
             {/* Platinum Star Metric Pill (No Yellow) */}
             <span className="relative z-10 flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-white/[0.06] group-hover:bg-white/[0.1] border border-white/[0.08] text-[11px] font-mono font-medium text-neutral-300 group-hover:text-white transition-colors">

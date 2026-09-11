@@ -38,9 +38,8 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
     setTimeout(() => setCopiedCli(false), 2000);
   };
 
-  const title = locale === "ar" && component.titleAr ? component.titleAr : component.title;
-  const description =
-    locale === "ar" && component.descriptionAr ? component.descriptionAr : component.description;
+  const title = component.title;
+  const description = component.description;
 
   return (
     <div
@@ -56,7 +55,7 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
       {/* ── 1. Interactive Preview Area ── */}
       <Link
         href={`/components/${component.id}`}
-        className="relative h-56 w-full flex items-center justify-center p-4 bg-black/40 overflow-hidden border-b border-white/[0.08] cursor-pointer"
+        className="relative h-48 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-black/40 overflow-hidden border-b border-white/[0.08] cursor-pointer"
       >
         {/* Subtle grid pattern background */}
         <div
@@ -78,11 +77,11 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
       </Link>
 
       {/* ── 2. Card Info & Footer ── */}
-      <div className="p-5 flex flex-col flex-1 justify-between gap-4">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3.5 sm:gap-4">
         <div>
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30">
-              {locale === "ar" && component.categoryLabelAr ? component.categoryLabelAr : component.categoryLabel}
+              {component.categoryLabel}
             </span>
 
             <div className="flex items-center gap-1.5">

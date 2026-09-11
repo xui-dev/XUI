@@ -7,26 +7,45 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      secretKey,
       id,
       title,
-      titleAr,
       description,
-      descriptionAr,
       category,
       categoryLabel,
-      categoryLabelAr,
       dependencies,
       code,
     } = body;
 
-    // 1. Verify admin password/key
-    const expectedSecret = process.env.ADMIN_SECRET_KEY || "xui-admin-2026";
-    if (!secretKey || secretKey !== expectedSecret) {
-      return NextResponse.json(
-        { error: "Unauthorized: Invalid admin secret key." },
-        { status: 401 }
-      );
+    // 1. Verify admin session via Supabase Auth
+    const supabase = await createClient();
+    let authEmail: string | null = null;
+
+    if (supabase) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return NextResponse.json(
+          { error: "Unauthorized: You must be signed in to publish components." },
+          { status: 401 }
+        );
+      }
+
+      authEmail = user.email || null;
+      const adminEmail =
+        process.env.ADMIN_EMAIL ||
+        process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
+        "xui.dev.off@gmail.com";
+
+      if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+        return NextResponse.json(
+          {
+            error: `Access Denied: Only administrator (${adminEmail}) can publish components. Logged in as: ${user.email}`,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     if (!id || !title || !code) {
@@ -51,12 +70,9 @@ export async function POST(request: Request) {
     const metaData = {
       name: cleanId,
       title,
-      titleAr: titleAr || title,
       description: description || "",
-      descriptionAr: descriptionAr || description || "",
       category: category || "patterns",
       categoryLabel: categoryLabel || category || "Patterns",
-      categoryLabelAr: categoryLabelAr || categoryLabel || "أنماط",
       author: "Aymen",
       authorHandle: "@aymen_dev",
       dependencies: parsedDeps,
