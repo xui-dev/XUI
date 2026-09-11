@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Heart, Eye, ArrowUpRight } from "lucide-react";
+import { Heart, Eye, ArrowUpRight, Terminal, Check, Copy } from "lucide-react";
 import type { ComponentItem } from "@/data/componentsData";
 import ComponentLivePreview from "./ComponentLivePreview";
 
@@ -14,17 +14,28 @@ export interface ComponentCardProps {
 export default function ComponentCard({ component, locale = "en" }: ComponentCardProps) {
   const [likes, setLikes] = useState(component.likes);
   const [isLiked, setIsLiked] = useState(false);
+  const [copiedCli, setCopiedCli] = useState(false);
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isLiked) {
-      setLikes((prev) => prev - 1);
-      setIsLiked(false);
-    } else {
-      setLikes((prev) => prev + 1);
-      setIsLiked(true);
-    }
+
+    const nextIsLiked = !isLiked;
+    setIsLiked(nextIsLiked);
+    setLikes((prev) => (nextIsLiked ? prev + 1 : Math.max(0, prev - 1)));
+
+    // Sync to Supabase in background
+    fetch(`/api/stats/${component.id}?action=${nextIsLiked ? "like" : "unlike"}`, {
+      method: "POST",
+    }).catch(() => {});
+  };
+
+  const handleCopyCli = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(`npx xui add ${component.id}`);
+    setCopiedCli(true);
+    setTimeout(() => setCopiedCli(false), 2000);
   };
 
   const title = locale === "ar" && component.titleAr ? component.titleAr : component.title;
@@ -74,24 +85,41 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
               {locale === "ar" && component.categoryLabelAr ? component.categoryLabelAr : component.categoryLabel}
             </span>
 
-            {/* Like Counter Button */}
-            <button
-              type="button"
-              onClick={handleLike}
-              className={`flex items-center gap-1 text-xs font-mono transition-colors cursor-pointer px-2 py-1 rounded-lg border ${
-                isLiked
-                  ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
-                  : "text-neutral-400 hover:text-white bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.08]"
-              }`}
-              title="Like component"
-            >
-              <Heart
-                className={`w-3.5 h-3.5 transition-transform active:scale-125 ${
-                  isLiked ? "fill-rose-500 text-rose-500" : ""
+            <div className="flex items-center gap-1.5">
+              {/* Quick CLI Copy Button */}
+              <button
+                type="button"
+                onClick={handleCopyCli}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all cursor-pointer"
+                title={`Copy "npx xui add ${component.id}"`}
+              >
+                {copiedCli ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Terminal className="w-3.5 h-3.5 text-blue-400" />
+                )}
+                <span className="text-[11px] hidden xs:inline">CLI</span>
+              </button>
+
+              {/* Like Counter Button */}
+              <button
+                type="button"
+                onClick={handleLike}
+                className={`flex items-center gap-1 text-xs font-mono transition-colors cursor-pointer px-2 py-1 rounded-lg border ${
+                  isLiked
+                    ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                    : "text-neutral-400 hover:text-white bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.08]"
                 }`}
-              />
-              <span>{likes}</span>
-            </button>
+                title="Like component"
+              >
+                <Heart
+                  className={`w-3.5 h-3.5 transition-transform active:scale-125 ${
+                    isLiked ? "fill-rose-500 text-rose-500" : ""
+                  }`}
+                />
+                <span>{likes}</span>
+              </button>
+            </div>
           </div>
 
           <Link href={`/components/${component.id}`} className="group/link block">

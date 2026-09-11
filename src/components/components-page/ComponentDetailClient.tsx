@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,7 +8,7 @@ import ComponentPreviewView from "@/components/components-page/ComponentPreviewV
 import ComponentCodeView from "@/components/components-page/ComponentCodeView";
 import type { ComponentItem } from "@/data/componentsData";
 import { useLanguage } from "@/context/LanguageContext";
-import { ArrowLeft, Eye, Code2 } from "lucide-react";
+import { ArrowLeft, Eye, Code2, Terminal, Copy, Check } from "lucide-react";
 
 export interface ComponentDetailClientProps {
   component: ComponentItem;
@@ -17,8 +17,21 @@ export interface ComponentDetailClientProps {
 export default function ComponentDetailClient({ component }: ComponentDetailClientProps) {
   const { locale, dir } = useLanguage();
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
+  const [copiedCli, setCopiedCli] = useState(false);
 
   const title = locale === "ar" && component.titleAr ? component.titleAr : component.title;
+  const cliCommand = `npx xui add ${component.id}`;
+
+  const copyCliCommand = () => {
+    navigator.clipboard.writeText(cliCommand);
+    setCopiedCli(true);
+    setTimeout(() => setCopiedCli(false), 2000);
+  };
+
+  // Increment views on visit
+  useEffect(() => {
+    fetch(`/api/stats/${component.id}?action=view`, { method: "POST" }).catch(() => {});
+  }, [component.id]);
 
   return (
     <div
@@ -34,7 +47,7 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
         <div className="absolute bottom-24 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[150px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full flex flex-col gap-8">
+      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto w-full flex flex-col gap-6">
         {/* ── Navigation Header: Back Link + Breadcrumb ── */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <Link
@@ -45,7 +58,7 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
             <span>{locale === "ar" ? "العودة إلى المكونات" : "Back to Components"}</span>
           </Link>
 
-          {/* Top Toggle Tabs: [ Preview ] and [ Code ] (matching wireframe) */}
+          {/* Top Toggle Tabs: [ Preview ] and [ Code ] */}
           <div className="flex items-center p-1 rounded-2xl bg-[#10121e]/90 backdrop-blur-2xl border border-white/[0.12] shadow-xl">
             <button
               type="button"
@@ -86,6 +99,33 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
             {title}
           </h1>
+        </div>
+
+        {/* ── One-Click CLI Installation Bar ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:px-5 sm:py-3.5 rounded-2xl bg-[#0e101c]/90 backdrop-blur-xl border border-white/[0.12] shadow-xl">
+          <div className="flex items-center gap-2.5 font-mono text-xs sm:text-sm text-neutral-300">
+            <Terminal className="w-4 h-4 text-blue-400 shrink-0" />
+            <span className="text-neutral-500 select-none">$</span>
+            <span className="text-blue-300 font-semibold">{cliCommand}</span>
+          </div>
+          <button
+            type="button"
+            onClick={copyCliCommand}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.22] border border-white/[0.12] text-xs font-semibold text-white transition-all cursor-pointer w-fit"
+            title="Copy CLI command"
+          >
+            {copiedCli ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">{locale === "ar" ? "تم النسخ!" : "Copied!"}</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-neutral-400" />
+                <span>{locale === "ar" ? "نسخ الأمر" : "Copy CLI"}</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* ── Active Tab View ── */}
