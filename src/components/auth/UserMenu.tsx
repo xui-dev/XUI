@@ -146,7 +146,7 @@ export default function UserMenu() {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <UserIcon className="w-4 h-4 text-cyan-400" />
+              <UserIcon className="w-4 h-4 text-white" />
               <span>{t.profile || "Profile"}</span>
             </Link>
 
@@ -156,7 +156,7 @@ export default function UserMenu() {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <Bookmark className="w-4 h-4 text-amber-400" />
+              <Bookmark className="w-4 h-4 text-white" />
               <span>{t.myFavorites || "Saved Items"}</span>
             </Link>
 
@@ -166,7 +166,7 @@ export default function UserMenu() {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <Settings className="w-4 h-4 text-neutral-400" />
+              <Settings className="w-4 h-4 text-white" />
               <span>{t.settings || "Settings"}</span>
             </Link>
 
@@ -176,7 +176,7 @@ export default function UserMenu() {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <BookOpen className="w-4 h-4 text-emerald-400" />
+              <BookOpen className="w-4 h-4 text-white" />
               <span>{t.docs || "Docs"}</span>
             </Link>
 
@@ -186,7 +186,7 @@ export default function UserMenu() {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <Flag className="w-4 h-4 text-rose-400" />
+              <Flag className="w-4 h-4 text-white" />
               <span>{t.report || "Report & Feedback"}</span>
             </a>
 
