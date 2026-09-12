@@ -94,7 +94,11 @@
     "errorGeneral": "An error occurred. Please try again.",
     "userMenu": {
       "profile": "Profile",
-      "myFavorites": "Saved Components",
+      "settings": "Settings",
+      "docs": "Docs",
+      "myFavorites": "Saved Items",
+      "report": "Report & Feedback",
+      "admin": "Admin Dashboard",
       "signOut": "Sign Out",
       "account": "Account"
     }

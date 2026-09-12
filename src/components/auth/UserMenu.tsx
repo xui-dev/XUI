@@ -7,7 +7,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   LogOut,
-  Layers,
+  User as UserIcon,
+  Bookmark,
+  Settings,
+  BookOpen,
+  Flag,
   ChevronDown,
   Sparkles,
 } from "lucide-react";
@@ -134,22 +138,64 @@ export default function UserMenu() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-1 mb-2">
+          {/* Menu Items */}
+          <div className="space-y-0.5 mb-2">
+            {/* 1. Profile */}
             <Link
-              href="/components"
+              href="/profile"
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <Layers className="w-4 h-4 text-cyan-400" />
-              <span>{messages.navbar?.links?.components || "Components"}</span>
+              <UserIcon className="w-4 h-4 text-cyan-400" />
+              <span>{t.profile || "Profile"}</span>
             </Link>
 
+            {/* 2. Saved Items */}
+            <Link
+              href="/saved"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+            >
+              <Bookmark className="w-4 h-4 text-amber-400" />
+              <span>{t.myFavorites || "Saved Items"}</span>
+            </Link>
+
+            {/* 3. Settings */}
+            <Link
+              href="/settings"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+            >
+              <Settings className="w-4 h-4 text-neutral-400" />
+              <span>{t.settings || "Settings"}</span>
+            </Link>
+
+            {/* 4. Docs */}
+            <Link
+              href="/docs"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+            >
+              <BookOpen className="w-4 h-4 text-emerald-400" />
+              <span>{t.docs || "Docs"}</span>
+            </Link>
+
+            {/* 5. Report & Feedback */}
+            <a
+              href="mailto:support@xui.dev?subject=XUI%20Feedback%20%2F%20Issue%20Report"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+            >
+              <Flag className="w-4 h-4 text-rose-400" />
+              <span>{t.report || "Report & Feedback"}</span>
+            </a>
+
+            {/* Admin Dashboard (only visible for designated admin) */}
             {user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
               <Link
                 href="/admin"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-blue-300 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-blue-300 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-all mt-1"
               >
                 <div className="flex items-center gap-2.5">
                   <Sparkles className="w-4 h-4 text-blue-400" />
