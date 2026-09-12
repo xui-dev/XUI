@@ -47,7 +47,6 @@ export default function UserMenu() {
     user.email?.split("@")[0] ||
     "User";
   const userInitial = fullName.charAt(0).toUpperCase();
-  const provider = user.app_metadata?.provider || "email";
 
   return (
     <div className="relative" ref={menuRef}>
@@ -126,15 +125,6 @@ export default function UserMenu() {
                   {user.email}
                 </p>
               </div>
-            </div>
-
-            {/* Provider Pill */}
-            <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-white/[0.06] text-[10px] font-mono text-neutral-400">
-              <span className="uppercase">{provider}</span>
-              <span className="flex items-center gap-1 text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Active
-              </span>
             </div>
           </div>
 
