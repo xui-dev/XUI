@@ -6,11 +6,12 @@ import {
   Bookmark,
   Share2,
   Eye,
-  Check,
   Terminal,
 } from "lucide-react";
 import type { ComponentItem } from "@/data/componentsData";
 import ComponentLivePreview from "./ComponentLivePreview";
+import ShareModal from "./ShareModal";
+import { useComponentStats } from "@/hooks/useComponentStats";
 
 export interface ComponentPreviewViewProps {
   component: ComponentItem;
@@ -21,31 +22,16 @@ export default function ComponentPreviewView({
   component,
   locale = "en",
 }: ComponentPreviewViewProps) {
-  const [likes, setLikes] = useState(component.likes);
-  const [isLiked, setIsLiked] = useState(false);
+  const { likes, views, isLiked, toggleLike } = useComponentStats(
+    component.id,
+    component.likes,
+    component.views
+  );
   const [isSaved, setIsSaved] = useState(false);
-  const [copiedShare, setCopiedShare] = useState(false);
-
-  const handleLike = () => {
-    if (isLiked) {
-      setLikes((prev) => prev - 1);
-      setIsLiked(false);
-    } else {
-      setLikes((prev) => prev + 1);
-      setIsLiked(true);
-    }
-  };
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const handleSave = () => {
     setIsSaved((prev) => !prev);
-  };
-
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedShare(true);
-      setTimeout(() => setCopiedShare(false), 2500);
-    }
   };
 
   const title = component.title;
@@ -90,7 +76,7 @@ export default function ComponentPreviewView({
           {/* Like button */}
           <button
             type="button"
-            onClick={handleLike}
+            onClick={toggleLike}
             className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-semibold font-mono transition-all cursor-pointer border active:scale-95 ${
               isLiked
                 ? "bg-rose-500/15 border-rose-500/30 text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]"
@@ -126,20 +112,12 @@ export default function ComponentPreviewView({
           {/* Share button */}
           <button
             type="button"
-            onClick={handleShare}
+            onClick={() => setIsShareOpen(true)}
             className="flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+            title="Share component"
           >
-            {copiedShare ? (
-              <>
-                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400" />
-                <span>Share</span>
-              </>
-            )}
+            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
+            <span>Share</span>
           </button>
         </div>
 
@@ -210,6 +188,15 @@ export default function ComponentPreviewView({
           </div>
         </div>
       </div>
+
+      {/* ── Share Modal Popup ── */}
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        componentId={component.id}
+        title={title}
+        description={description}
+      />
     </div>
   );
 }

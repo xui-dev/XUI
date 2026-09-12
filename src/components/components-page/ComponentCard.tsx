@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Heart, Eye, ArrowUpRight, Terminal, Check, Copy } from "lucide-react";
+import { Heart, Eye, ArrowUpRight, Terminal, Check, Share2 } from "lucide-react";
 import type { ComponentItem } from "@/data/componentsData";
 import ComponentLivePreview from "./ComponentLivePreview";
+import ShareModal from "./ShareModal";
+import { useComponentStats } from "@/hooks/useComponentStats";
 
 export interface ComponentCardProps {
   component: ComponentItem;
@@ -12,23 +14,13 @@ export interface ComponentCardProps {
 }
 
 export default function ComponentCard({ component, locale = "en" }: ComponentCardProps) {
-  const [likes, setLikes] = useState(component.likes);
-  const [isLiked, setIsLiked] = useState(false);
+  const { likes, views, isLiked, toggleLike } = useComponentStats(
+    component.id,
+    component.likes,
+    component.views
+  );
   const [copiedCli, setCopiedCli] = useState(false);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const nextIsLiked = !isLiked;
-    setIsLiked(nextIsLiked);
-    setLikes((prev) => (nextIsLiked ? prev + 1 : Math.max(0, prev - 1)));
-
-    // Sync to Supabase in background
-    fetch(`/api/stats/${component.id}?action=${nextIsLiked ? "like" : "unlike"}`, {
-      method: "POST",
-    }).catch(() => {});
-  };
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const handleCopyCli = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,6 +28,12 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
     navigator.clipboard.writeText(`npx xui add ${component.id}`);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
+  };
+
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsShareOpen(true);
   };
 
   const title = component.title;
@@ -100,10 +98,20 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
                 <span className="text-[11px] hidden xs:inline">CLI</span>
               </button>
 
+              {/* Share Button */}
+              <button
+                type="button"
+                onClick={handleShareClick}
+                className="flex items-center justify-center p-1.5 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all cursor-pointer"
+                title="Share component link"
+              >
+                <Share2 className="w-3.5 h-3.5 text-blue-400" />
+              </button>
+
               {/* Like Counter Button */}
               <button
                 type="button"
-                onClick={handleLike}
+                onClick={toggleLike}
                 className={`flex items-center gap-1 text-xs font-mono transition-colors cursor-pointer px-2 py-1 rounded-lg border ${
                   isLiked
                     ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
@@ -142,10 +150,19 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
 
           <div className="flex items-center gap-1 text-neutral-500 font-mono text-[11px]">
             <Eye className="w-3.5 h-3.5" />
-            <span>{component.views}</span>
+            <span>{views}</span>
           </div>
         </div>
       </div>
+
+      {/* Share Modal Popup */}
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        componentId={component.id}
+        title={title}
+        description={description}
+      />
     </div>
   );
 }

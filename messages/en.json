@@ -98,5 +98,14 @@
       "signOut": "Sign Out",
       "account": "Account"
     }
+  },
+  "share": {
+    "title": "Share Component",
+    "subtitle": "Share this kinetic component with your team or community",
+    "copyLink": "Component Link",
+    "copyBtn": "Copy Link",
+    "copied": "Copied!",
+    "socials": "Or share directly via:",
+    "nativeShare": "More options on your device..."
   }
 }
