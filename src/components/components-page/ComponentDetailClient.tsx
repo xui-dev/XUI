@@ -101,39 +101,41 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
           </h1>
         </div>
 
-        {/* ── One-Click CLI Installation Bar ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:px-5 sm:py-3.5 rounded-2xl bg-[#0e101c]/90 backdrop-blur-xl border border-white/[0.12] shadow-xl">
-          <div className="flex items-center gap-2.5 font-mono text-xs sm:text-sm text-neutral-300 overflow-x-auto no-scrollbar">
-            <Terminal className="w-4 h-4 text-blue-400 shrink-0" />
-            <span className="text-neutral-500 select-none">$</span>
-            <span className="text-blue-300 font-semibold whitespace-nowrap">{cliCommand}</span>
-          </div>
-          <button
-            type="button"
-            onClick={copyCliCommand}
-            className="flex items-center self-end sm:self-auto gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.22] border border-white/[0.12] text-xs font-semibold text-white transition-all cursor-pointer shrink-0"
-            title="Copy CLI command"
-          >
-            {copiedCli ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Copy CLI</span>
-              </>
-            )}
-          </button>
-        </div>
-
         {/* ── Active Tab View ── */}
         <div className="w-full transition-all duration-300">
           {activeTab === "preview" ? (
             <ComponentPreviewView component={component} locale={locale} />
           ) : (
-            <ComponentCodeView component={component} locale={locale} />
+            <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
+              {/* ── One-Click CLI Installation Bar (Code Tab Only) ── */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:px-5 sm:py-3.5 rounded-2xl bg-[#0e101c]/90 backdrop-blur-xl border border-white/[0.12] shadow-xl">
+                <div className="flex items-center gap-2.5 font-mono text-xs sm:text-sm text-neutral-300 overflow-x-auto no-scrollbar">
+                  <Terminal className="w-4 h-4 text-blue-400 shrink-0" />
+                  <span className="text-neutral-500 select-none">$</span>
+                  <span className="text-blue-300 font-semibold whitespace-nowrap">{cliCommand}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyCliCommand}
+                  className="flex items-center self-end sm:self-auto gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.22] border border-white/[0.12] text-xs font-semibold text-white transition-all cursor-pointer shrink-0"
+                  title="Copy CLI command"
+                >
+                  {copiedCli ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-neutral-400" />
+                      <span>Copy CLI</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <ComponentCodeView component={component} locale={locale} />
+            </div>
           )}
         </div>
       </main>
