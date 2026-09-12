@@ -2,18 +2,41 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import XUILogo from "@/components/XUILogo";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import UserMenu from "@/components/auth/UserMenu";
-import { Menu, X, Layers, LayoutTemplate, Sparkles, Settings } from "lucide-react";
+import {
+  Menu,
+  X,
+  Layers,
+  LayoutTemplate,
+  Sparkles,
+  Settings,
+  User as UserIcon,
+  Bookmark,
+  BookOpen,
+  Flag,
+  LogOut,
+  LogIn,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function Navbar() {
   const { messages, dir } = useLanguage();
-  const { user, openAuthModal, isAuthModalOpen } = useAuth();
+  const { user, signOut, openAuthModal, isAuthModalOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = messages.navbar;
+
+  const userMetadata = user?.user_metadata || {};
+  const avatarUrl = userMetadata.avatar_url || userMetadata.picture || null;
+  const fullName =
+    userMetadata.full_name ||
+    userMetadata.name ||
+    user?.email?.split("@")[0] ||
+    "User";
+  const userInitial = fullName.charAt(0).toUpperCase();
 
   return (
     <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.25rem)] sm:w-[calc(100%-3.5rem)] lg:w-[calc(100%-5rem)] max-w-7xl pointer-events-none flex flex-col items-center transition-all duration-300">
@@ -137,12 +160,13 @@ export default function Navbar() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
-          MOBILE NAVIGATION (Unified Sleek Liquid Glass Dock on < sm)
+          MOBILE NAVIGATION (Minimal Dock + Full Drawer Sidebar on < sm)
       ══════════════════════════════════════════════════════════════════ */}
       <div className="flex sm:hidden flex-col w-full pointer-events-auto relative">
+        {/* ── Minimalist Top Dock (Logo + Menu Toggle Only) ── */}
         <div
           dir={dir}
-          className="flex items-center justify-between w-full px-3 py-2 rounded-2xl
+          className="flex items-center justify-between w-full px-4 py-2.5 rounded-2xl
                      bg-[#10121a]/85 backdrop-blur-2xl backdrop-saturate-200
                      border border-white/[0.15] shadow-[0_16px_40px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.22)]"
         >
@@ -153,52 +177,25 @@ export default function Navbar() {
             aria-label="XUI Home"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <XUILogo height={18} color="#ffffff" />
+            <XUILogo height={20} color="#ffffff" />
           </Link>
 
-          {/* Quick Center Action: Components Pill */}
-          <div className="flex items-center gap-1.5">
-            <Link
-              href="/components"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-2.5 py-1 rounded-xl text-xs font-semibold text-white
-                         bg-blue-600/25 hover:bg-blue-600/35 border border-blue-500/40
-                         shadow-[0_0_12px_rgba(37,99,235,0.3)] active:scale-95 transition-all"
-            >
-              {t.links.components}
-            </Link>
-          </div>
-
-          {/* Right Action: Sign In / User + Hamburger Menu */}
-          <div className="flex items-center gap-1.5">
-            {user ? (
-              <UserMenu />
+          {/* Hamburger Menu Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-xl text-neutral-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] active:scale-95 transition-all cursor-pointer"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5 text-blue-400" />
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openAuthModal("signin");
-                }}
-                className="px-2.5 py-1 rounded-xl text-xs font-semibold text-white
-                           bg-white/[0.12] hover:bg-white/[0.18] border border-white/20 active:scale-95 transition-all"
-              >
-                {t.signIn}
-              </button>
+              <Menu className="w-5 h-5" />
             )}
-
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-xl text-neutral-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] active:scale-95 transition-all cursor-pointer"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-4 h-4 text-blue-400" /> : <Menu className="w-4 h-4" />}
-            </button>
-          </div>
+          </button>
         </div>
 
-        {/* ── Expandable Mobile Frosted Drawer ── */}
+        {/* ── Expandable Mobile Frosted Sidebar Drawer ── */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -206,48 +203,173 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="mt-2 p-3 rounded-2xl bg-[#0c0e18]/95 backdrop-blur-3xl border border-white/[0.14] shadow-[0_24px_50px_rgba(0,0,0,0.95)] flex flex-col gap-1.5 z-50"
+              className="mt-2 p-3.5 rounded-3xl bg-[#0c0e18]/95 backdrop-blur-3xl border border-white/[0.14] shadow-[0_24px_50px_rgba(0,0,0,0.95)] flex flex-col gap-2.5 z-50 max-h-[85vh] overflow-y-auto"
             >
-              <Link
-                href="/components"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
-              >
-                <Layers className="w-4 h-4 text-blue-400" />
-                <span>{t.links.components}</span>
-              </Link>
+              {/* 1. Account Section (User Details or Sign In Button) */}
+              {user ? (
+                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex flex-col gap-3">
+                  {/* User info Header */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/25 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-md">
+                      {avatarUrl ? (
+                        <Image
+                          src={avatarUrl}
+                          alt={fullName}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="text-sm font-bold text-white">
+                          {userInitial}
+                        </span>
+                      )}
+                    </div>
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-sm font-bold text-white truncate">
+                        {fullName}
+                      </p>
+                      <p className="text-xs text-neutral-400 truncate font-mono">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
 
-              <Link
-                href="#templates"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
-              >
-                <LayoutTemplate className="w-4 h-4 text-indigo-400" />
-                <span>{t.links.templates}</span>
-              </Link>
+                  {/* Profile & User Quick Actions Grid */}
+                  <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-white/[0.06]">
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4 text-white" />
+                      <span>Profile</span>
+                    </Link>
 
-              <Link
-                href="#showcase"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
-              >
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                <span>{t.links.showcase}</span>
-              </Link>
+                    <Link
+                      href="/saved"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    >
+                      <Bookmark className="w-4 h-4 text-white" />
+                      <span>Saved</span>
+                    </Link>
 
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
-              >
-                <Settings className="w-4 h-4 text-neutral-400" />
-                <span>Settings</span>
-              </Link>
+                    <Link
+                      href="/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    >
+                      <Settings className="w-4 h-4 text-white" />
+                      <span>Settings</span>
+                    </Link>
 
+                    <Link
+                      href="/docs"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 text-white" />
+                      <span>Docs</span>
+                    </Link>
+                  </div>
+
+                  {/* Report + Sign Out row */}
+                  <div className="flex items-center justify-between pt-1.5 border-t border-white/[0.06] text-xs">
+                    <a
+                      href="mailto:support@xui.dev?subject=XUI%20Feedback%20%2F%20Issue%20Report"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-1.5 text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <Flag className="w-3.5 h-3.5 text-white" />
+                      <span>Report</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        signOut();
+                      }}
+                      className="flex items-center gap-1.5 text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+
+                  {/* Admin link if designated admin */}
+                  {user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-blue-300 hover:text-white bg-blue-500/10 border border-blue-500/20 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-blue-400" />
+                        <span>Admin Dashboard</span>
+                      </div>
+                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-blue-200">
+                        Admin
+                      </span>
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openAuthModal("signin");
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_8px_20px_rgba(37,99,235,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>{t.signIn || "Sign In / Create Account"}</span>
+                </button>
+              )}
+
+              {/* 2. Navigation Links */}
+              <div className="flex flex-col gap-1 pt-1">
+                <Link
+                  href="/components"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Layers className="w-4 h-4 text-blue-400" />
+                    <span>{t.links.components}</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                    Explore
+                  </span>
+                </Link>
+
+                <Link
+                  href="#templates"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                >
+                  <LayoutTemplate className="w-4 h-4 text-indigo-400" />
+                  <span>{t.links.templates}</span>
+                </Link>
+
+                <Link
+                  href="#showcase"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>{t.links.showcase}</span>
+                </Link>
+              </div>
+
+              {/* 3. GitHub Link */}
               <div className="w-full h-px bg-white/[0.08] my-1" />
 
               <a
-                href="https://github.com"
+                href="https://github.com/xui-dev/XUI"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
