@@ -118,15 +118,8 @@ export default function Navbar() {
           {/* If logged in, show Liquid Glass UserMenu */}
           {user ? (
             <UserMenu />
-          ) : !isAuthModalOpen ? (
-            <motion.button
-              layoutId="apple-liquid-glass-auth-pill"
-              transition={{
-                type: "spring",
-                stiffness: 320,
-                damping: 28,
-                mass: 0.8,
-              }}
+          ) : (
+            <button
               type="button"
               onClick={() => openAuthModal("signin")}
               className="relative group overflow-hidden px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-white
@@ -138,9 +131,7 @@ export default function Navbar() {
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
               <span className="relative z-10 whitespace-nowrap">{t.signIn}</span>
-            </motion.button>
-          ) : (
-            <div className="w-[74px] sm:w-[86px] h-[30px] sm:h-[36px] rounded-xl opacity-0 pointer-events-none" />
+            </button>
           )}
         </div>
       </div>

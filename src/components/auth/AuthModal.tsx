@@ -48,12 +48,13 @@ export default function AuthModal() {
 
           {/* ── Unified XUI Obsidian Dock Modal ── */}
           <motion.div
-            layoutId="apple-liquid-glass-auth-pill"
+            initial={{ opacity: 0, scale: 0.94, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{
               type: "spring",
-              stiffness: 300,
-              damping: 26,
-              mass: 0.8,
+              stiffness: 340,
+              damping: 28,
             }}
             className="relative z-10 w-full max-w-md my-auto rounded-[28px] sm:rounded-[32px] overflow-hidden"
           >
@@ -67,19 +68,11 @@ export default function AuthModal() {
               <X className="w-4 h-4" />
             </button>
 
-            {/* Inner Content with fluid reveal */}
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.2, delay: 0.05 }}
-            >
-              <AuthCard
-                initialMode={authMode}
-                onSuccess={closeAuthModal}
-                isModal={true}
-              />
-            </motion.div>
+            <AuthCard
+              initialMode={authMode}
+              onSuccess={closeAuthModal}
+              isModal={true}
+            />
           </motion.div>
         </div>
       )}

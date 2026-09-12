@@ -51,7 +51,7 @@ export default function UserMenu() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="group relative flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-2xl
+        className="group relative overflow-hidden flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-2xl
                    bg-white/[0.08] hover:bg-white/[0.15] active:bg-white/[0.2]
                    border border-white/20 hover:border-white/35
                    shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.4)]
