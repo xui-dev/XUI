@@ -349,11 +349,7 @@ export default function AuthCard({
             <label className="text-xs font-medium text-neutral-300">
               {t.password || "Password"}
             </label>
-            {mode === "signin" && (
-              <span className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer">
-                {t.forgotPassword || "Forgot password?"}
-              </span>
-            )}
+            {/* MUT-04: Forgot password hidden temporarily until password-reset handler/route is built */}
           </div>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />

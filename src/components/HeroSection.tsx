@@ -52,27 +52,20 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
 
         {/* 4. Action Buttons (Ultra-Premium Handcrafted CTAs) */}
         <div className="flex flex-row items-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 pointer-events-auto">
-          {/* Primary CTA: Browse Components (Luminous Porcelain Keycap with Interactive Capsule) */}
+          {/* Primary CTA: Browse Components (Unified Blue Gradient CTA) */}
           <Link
             href="/components"
-            className="relative group overflow-hidden h-10 sm:h-12 px-4 sm:px-6 rounded-[14px]
-                       inline-flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold tracking-tight text-neutral-950
-                       bg-gradient-to-b from-white via-[#f7f7f8] to-[#e4e4e9]
-                       border border-white/90
-                       shadow-[0_1px_2px_rgba(0,0,0,0.3),0_8px_24px_-4px_rgba(255,255,255,0.25),inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_0_rgba(0,0,0,0.08)]
-                       hover:shadow-[0_2px_4px_rgba(0,0,0,0.35),0_14px_32px_-4px_rgba(255,255,255,0.4),inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_0_rgba(0,0,0,0.08)]
-                       hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]
-                       transition-all duration-200 ease-out cursor-pointer shrink-0"
+            className="relative group overflow-hidden h-10 sm:h-12 px-5 sm:px-6 rounded-2xl
+                       inline-flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-white
+                       bg-gradient-to-r from-blue-600 to-indigo-600
+                       border border-blue-400/30
+                       shadow-[0_0_30px_rgba(37,99,235,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)]
+                       hover:shadow-[0_0_45px_rgba(37,99,235,0.7),inset_0_1px_1px_rgba(255,255,255,0.4)]
+                       hover:scale-[1.02] active:scale-[0.98]
+                       transition-all duration-200 cursor-pointer shrink-0"
           >
-            {/* Diagonal Light Sweep Sheen */}
-            <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-
             <span className="relative z-10 whitespace-nowrap">{t.browseBtn}</span>
-
-            {/* Micro-capsule Arrow Track */}
-            <span className="relative z-10 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-black/[0.07] group-hover:bg-black group-hover:text-white text-neutral-800 transition-all duration-200">
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </span>
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1 shrink-0" />
           </Link>
 
           {/* Secondary CTA: Star on GitHub (Obsidian Titanium with Live Star Counter Badge, Zero Yellow) */}
@@ -80,7 +73,7 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
             href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative group overflow-hidden h-10 sm:h-12 px-3.5 sm:px-5 rounded-[14px]
+            className="relative group overflow-hidden h-10 sm:h-12 px-3.5 sm:px-5 rounded-2xl
                        inline-flex items-center gap-2 text-xs sm:text-sm font-medium tracking-tight text-neutral-200 hover:text-white
                        bg-[#0d0e12]/85 hover:bg-[#15161e]/90 backdrop-blur-xl
                        border border-white/[0.12] hover:border-white/[0.25]

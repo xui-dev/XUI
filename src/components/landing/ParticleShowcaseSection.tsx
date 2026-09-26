@@ -3,16 +3,14 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ParticleText from "./ParticleText";
-import { ArrowRight, Layers } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const PHRASES = [
-  { id: "ui-design", text: "UI design components", label: "UI Components" },
-  { id: "frameworks", text: "4 frameworks", label: "4 Frameworks" },
-  { id: "react", text: "React", label: "React" },
-  { id: "html-css-js", text: "HTML / CSS / JS", label: "HTML / CSS / JS" },
-  { id: "vue", text: "Vue", label: "Vue" },
-  { id: "svelte", text: "Svelte", label: "Svelte" },
+  { id: "ui-design", text: "Kinetic UI components", label: "UI Components" },
+  { id: "react", text: "React + TypeScript", label: "React + TS" },
+  { id: "tailwind", text: "Tailwind CSS", label: "Tailwind" },
+  { id: "interactive", text: "Motion Kinetics", label: "Motion" },
 ];
 
 export interface ParticleShowcaseSectionProps {
@@ -109,7 +107,6 @@ export default function ParticleShowcaseSection({
                      hover:scale-[1.02] active:scale-[0.98]
                      transition-all duration-200 cursor-pointer"
         >
-          <Layers className="w-4 h-4 text-blue-200" />
           <span>Explore Component Library</span>
           <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
         </Link>

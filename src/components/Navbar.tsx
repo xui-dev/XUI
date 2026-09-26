@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 import XUILogo from "@/components/XUILogo";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
@@ -27,10 +27,26 @@ export default function Navbar() {
   const { messages, dir } = useLanguage();
   const { user, signOut, openAuthModal, isAuthModalOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
   const t = messages.navbar;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      setIsLocalhost(
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "[::1]"
+      );
+    }
+  }, []);
 
   const userMetadata = user?.user_metadata || {};
   const avatarUrl = userMetadata.avatar_url || userMetadata.picture || null;
+  const paletteIndex =
+    typeof userMetadata.avatar_palette === "number"
+      ? userMetadata.avatar_palette
+      : null;
   const fullName =
     userMetadata.full_name ||
     userMetadata.name ||
@@ -61,14 +77,17 @@ export default function Navbar() {
           {/* Apple Liquid Glass Top Specular Sheen */}
           <div className="pointer-events-none absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent rounded-full" />
 
-          {/* 1. Left Section: Logo */}
+          {/* 1. Left Section: Logo + Beta Badge */}
           <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="flex items-center transition-transform duration-200 hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 transition-transform duration-200 hover:scale-105 active:scale-95"
               aria-label="XUI Home"
             >
               <XUILogo height={22} color="#ffffff" />
+              <span className="px-1.5 py-0.5 rounded-[5px] text-[10px] font-mono font-medium tracking-wider text-white bg-white/[0.08] border border-white/[0.18] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] select-none leading-none">
+                beta
+              </span>
             </Link>
           </div>
 
@@ -83,25 +102,25 @@ export default function Navbar() {
                 className="relative px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-[13px] font-medium text-neutral-300 hover:text-white 
                            hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200 whitespace-nowrap"
               >
-                {t.links.components}
+                {t?.links?.components || "Components"}
               </Link>
             </li>
             <li>
               <Link
-                href="#templates"
+                href="/#3d-websites"
                 className="relative px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-[13px] font-medium text-neutral-300 hover:text-white 
                            hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200 whitespace-nowrap"
               >
-                {t.links.templates}
+                3D web templates
               </Link>
             </li>
             <li>
               <Link
-                href="#showcase"
+                href="/docs"
                 className="relative px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-[13px] font-medium text-neutral-300 hover:text-white 
                            hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200 whitespace-nowrap"
               >
-                {t.links.showcase}
+                Docs
               </Link>
             </li>
           </ul>
@@ -111,7 +130,7 @@ export default function Navbar() {
 
           {/* Settings Icon Pill (replacing language switcher) */}
           <Link
-            href="/admin"
+            href="/settings"
             className="flex items-center justify-center p-1.5 sm:p-2 rounded-xl text-neutral-400 hover:text-white 
                        bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] transition-all duration-200 cursor-pointer active:scale-95 shrink-0 group"
             title="Settings"
@@ -170,14 +189,17 @@ export default function Navbar() {
                      bg-[#10121a]/85 backdrop-blur-2xl backdrop-saturate-200
                      border border-white/[0.15] shadow-[0_16px_40px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.22)]"
         >
-          {/* Logo */}
+          {/* Logo + Beta Badge */}
           <Link
             href="/"
-            className="flex items-center shrink-0 pr-1"
+            className="flex items-center gap-1.5 shrink-0 pr-1"
             aria-label="XUI Home"
             onClick={() => setMobileMenuOpen(false)}
           >
             <XUILogo height={20} color="#ffffff" />
+            <span className="px-1.5 py-0.5 rounded-[5px] text-[9px] font-mono font-medium tracking-wider text-white bg-white/[0.08] border border-white/[0.18] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] select-none leading-none">
+              beta
+            </span>
           </Link>
 
           {/* Hamburger Menu Toggle Button */}
@@ -210,22 +232,12 @@ export default function Navbar() {
                 <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex flex-col gap-3">
                   {/* User info Header */}
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/25 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-md">
-                      {avatarUrl ? (
-                        <Image
-                          src={avatarUrl}
-                          alt={fullName}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <span className="text-sm font-bold text-white">
-                          {userInitial}
-                        </span>
-                      )}
-                    </div>
+                    <UserAvatar
+                      name={fullName}
+                      avatarUrl={avatarUrl}
+                      paletteIndex={paletteIndex}
+                      size={40}
+                    />
                     <div className="overflow-hidden flex-1">
                       <p className="text-sm font-bold text-white truncate">
                         {fullName}
@@ -299,8 +311,8 @@ export default function Navbar() {
                     </button>
                   </div>
 
-                  {/* Admin link if designated admin */}
-                  {user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
+                  {/* Admin link if designated admin AND on localhost */}
+                  {isLocalhost && user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
                     <Link
                       href="/admin"
                       onClick={() => setMobileMenuOpen(false)}
@@ -347,21 +359,21 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="#templates"
+                  href="/#3d-websites"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
                 >
                   <LayoutTemplate className="w-4 h-4 text-indigo-400" />
-                  <span>{t.links.templates}</span>
+                  <span>3D web templates</span>
                 </Link>
 
                 <Link
-                  href="#showcase"
+                  href="/docs"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span>{t.links.showcase}</span>
+                  <BookOpen className="w-4 h-4 text-emerald-400" />
+                  <span>Docs</span>
                 </Link>
               </div>
 

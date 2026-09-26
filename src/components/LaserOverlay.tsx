@@ -19,10 +19,10 @@ export default function LaserOverlay({
     <div
       dir="ltr"
       style={{ opacity }}
-      className="absolute inset-0 z-20 pointer-events-none select-none flex items-start justify-center sm:justify-start px-3 sm:px-7 lg:px-10 pt-20 sm:pt-32 transition-opacity duration-200"
+      className="absolute inset-0 z-20 pointer-events-none select-none flex items-end sm:items-start justify-center sm:justify-start px-3 sm:px-7 lg:px-10 pb-5 sm:pb-0 pt-0 sm:pt-32 transition-opacity duration-200"
     >
-      {/* ── Left-Flanked on desktop, Centered on mobile ── */}
-      <div className="w-full max-w-7xl mx-auto flex items-start justify-center sm:justify-start px-0 sm:px-6 pointer-events-none">
+      {/* ── Left-Flanked on desktop, Centered and Bottom on mobile ── */}
+      <div className="w-full max-w-7xl mx-auto flex items-end sm:items-start justify-center sm:justify-start px-0 sm:px-6 pointer-events-none">
         <div className="pointer-events-auto w-full flex justify-center sm:justify-start">
           <MacCodeCard />
         </div>

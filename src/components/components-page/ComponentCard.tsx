@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Heart, Eye, ArrowUpRight, Terminal, Check, Share2 } from "lucide-react";
+import { Eye, ArrowUpRight, Bookmark, Share2, BadgeCheck } from "lucide-react";
 import type { ComponentItem } from "@/data/componentsData";
 import ComponentLivePreview from "./ComponentLivePreview";
 import ShareModal from "./ShareModal";
+import CreatorProfileModal from "./CreatorProfileModal";
 import { useComponentStats } from "@/hooks/useComponentStats";
+import { useSavedComponents } from "@/hooks/useSavedComponents";
 
 export interface ComponentCardProps {
   component: ComponentItem;
@@ -14,25 +16,20 @@ export interface ComponentCardProps {
 }
 
 export default function ComponentCard({ component, locale = "en" }: ComponentCardProps) {
-  const { likes, views, isLiked, toggleLike } = useComponentStats(
+  const { views, recordShare } = useComponentStats(
     component.id,
     component.likes,
     component.views
   );
-  const [copiedCli, setCopiedCli] = useState(false);
+  const { isSaved: checkIsSaved, toggleSave } = useSavedComponents();
+  const isSaved = checkIsSaved(component.id);
   const [isShareOpen, setIsShareOpen] = useState(false);
-
-  const handleCopyCli = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigator.clipboard.writeText(`npx xui add ${component.id}`);
-    setCopiedCli(true);
-    setTimeout(() => setCopiedCli(false), 2000);
-  };
+  const [isCreatorOpen, setIsCreatorOpen] = useState(false);
 
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    recordShare();
     setIsShareOpen(true);
   };
 
@@ -41,61 +38,41 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
 
   return (
     <div
-      className="group relative flex flex-col rounded-3xl bg-[#0d0f1a]/80 backdrop-blur-2xl border border-white/[0.12] overflow-hidden transition-all duration-300 hover:border-blue-500/50 hover:-translate-y-1.5"
+      className="group relative flex flex-col rounded-3xl bg-[#0d0f1a]/80 backdrop-blur-2xl border border-white/[0.12] overflow-hidden transition-all duration-300 hover:border-white/[0.25] hover:-translate-y-1.5"
       style={{
         boxShadow:
           "0 20px 50px -15px rgba(0, 0, 0, 0.85), inset 0 1px 1px 0 rgba(255, 255, 255, 0.16)",
       }}
     >
-      {/* Specular Edge Glow on Hover */}
-      <div className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-b from-blue-600/20 via-transparent to-indigo-600/10" />
-
       {/* ── 1. Interactive Preview Area ── */}
-      <Link
-        href={`/components/${component.id}`}
-        className="relative h-48 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-black/40 overflow-hidden border-b border-white/[0.08] cursor-pointer"
-      >
-        {/* Subtle grid pattern background */}
-        <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px)",
-            backgroundSize: "16px 16px",
-          }}
-        />
-
-        <ComponentLivePreview id={component.id} interactive={false} />
-
-        {/* View overlay pill on card hover */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center pointer-events-none">
-          <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
-            Open Details <ArrowUpRight className="w-4 h-4 text-blue-400" />
-          </span>
+      <div className="relative h-48 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-black/40 overflow-hidden border-b border-white/[0.08]">
+        <div className="flex items-center justify-center w-full h-full">
+          <ComponentLivePreview id={component.id} interactive={true} />
         </div>
-      </Link>
+      </div>
 
       {/* ── 2. Card Info & Footer ── */}
       <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3.5 sm:gap-4">
         <div>
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30">
-              {component.categoryLabel}
-            </span>
-
+            {/* Left Action Buttons: Save, Share */}
             <div className="flex items-center gap-1.5">
-              {/* Quick CLI Copy Button */}
+              {/* Bookmark / Save Button */}
               <button
                 type="button"
-                onClick={handleCopyCli}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all cursor-pointer"
-                title={`Copy "npx xui add ${component.id}"`}
+                onClick={(e) => toggleSave(component.id, e)}
+                className={`flex items-center justify-center p-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
+                  isSaved
+                    ? "text-blue-400 bg-blue-500/15 border-blue-500/30 shadow-[0_0_12px_rgba(37,99,235,0.25)]"
+                    : "text-neutral-400 hover:text-white bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.08]"
+                }`}
+                title={isSaved ? "Saved to Bookmarks" : "Save to Bookmarks"}
               >
-                {copiedCli ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <Terminal className="w-3.5 h-3.5 text-blue-400" />
-                )}
-                <span className="text-[11px] hidden xs:inline">CLI</span>
+                <Bookmark
+                  className={`w-3.5 h-3.5 transition-all ${
+                    isSaved ? "fill-blue-400 text-blue-400 scale-110" : ""
+                  }`}
+                />
               </button>
 
               {/* Share Button */}
@@ -107,26 +84,17 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
               >
                 <Share2 className="w-3.5 h-3.5 text-blue-400" />
               </button>
-
-              {/* Like Counter Button */}
-              <button
-                type="button"
-                onClick={toggleLike}
-                className={`flex items-center gap-1 text-xs font-mono transition-colors cursor-pointer px-2 py-1 rounded-lg border ${
-                  isLiked
-                    ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
-                    : "text-neutral-400 hover:text-white bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.08]"
-                }`}
-                title="Like component"
-              >
-                <Heart
-                  className={`w-3.5 h-3.5 transition-transform active:scale-125 ${
-                    isLiked ? "fill-rose-500 text-rose-500" : ""
-                  }`}
-                />
-                <span>{likes}</span>
-              </button>
             </div>
+
+            {/* Right: Open Details Button (moved down from preview window) */}
+            <Link
+              href={`/components/${component.id}`}
+              className="group/details flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] hover:border-blue-500/40 transition-all cursor-pointer"
+              title="Open Details"
+            >
+              <span>Open Details</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-blue-400 group-hover/details:translate-x-0.5 group-hover/details:-translate-y-0.5 transition-transform" />
+            </Link>
           </div>
 
           <Link href={`/components/${component.id}`} className="group/link block">
@@ -141,12 +109,35 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
 
         {/* Footer Meta: Views + Creator Attribution */}
         <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-neutral-400">
-          <div className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
-              {component.author.charAt(0)}
-            </span>
-            <span className="text-neutral-300 font-medium">{component.author}</span>
-          </div>
+          {/* Creator Attribution Pill (Clickable to view Profile) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsCreatorOpen(true);
+            }}
+            className="group/creator flex items-center gap-1.5 py-0.5 px-1.5 -ml-1 rounded-xl hover:bg-white/[0.06] border border-transparent hover:border-white/[0.1] transition-all cursor-pointer text-left"
+            title={`View ${component.author} Profile`}
+          >
+            <div className="relative w-4.5 h-4.5 rounded-full overflow-hidden border border-white/20 shrink-0 bg-black flex items-center justify-center shadow-sm">
+              <img
+                src={component.authorAvatar || "/XUI.png"}
+                alt={component.author}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-neutral-400 font-medium">by</span>
+              <span className="text-[11px] text-neutral-200 group-hover/creator:text-white font-semibold transition-colors">
+                {component.author}
+              </span>
+              <span className="p-0.5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                <BadgeCheck className="w-2.5 h-2.5 fill-white text-blue-600" />
+              </span>
+            </div>
+          </button>
 
           <div className="flex items-center gap-1 text-neutral-500 font-mono text-[11px]">
             <Eye className="w-3.5 h-3.5" />
@@ -162,6 +153,15 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
         componentId={component.id}
         title={title}
         description={description}
+      />
+
+      {/* Creator Profile Modal */}
+      <CreatorProfileModal
+        isOpen={isCreatorOpen}
+        onClose={() => setIsCreatorOpen(false)}
+        author={component.author}
+        authorHandle={component.authorHandle}
+        authorAvatar={component.authorAvatar}
       />
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import UserAvatar from "@/components/ui/UserAvatar";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -22,7 +23,19 @@ export default function UserMenu() {
   const t = messages.auth?.userMenu || {};
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      setIsLocalhost(
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "[::1]"
+      );
+    }
+  }, []);
 
   // Close when clicking outside
   useEffect(() => {
@@ -41,6 +54,10 @@ export default function UserMenu() {
 
   const userMetadata = user.user_metadata || {};
   const avatarUrl = userMetadata.avatar_url || userMetadata.picture || null;
+  const paletteIndex =
+    typeof userMetadata.avatar_palette === "number"
+      ? userMetadata.avatar_palette
+      : null;
   const fullName =
     userMetadata.full_name ||
     userMetadata.name ||
@@ -64,21 +81,13 @@ export default function UserMenu() {
         {/* Specular sheen */}
         <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-xl" />
 
-        {/* User Avatar */}
-        <div className="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden border border-white/30 bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-sm">
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={fullName}
-              width={28}
-              height={28}
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="text-xs font-bold text-white">{userInitial}</span>
-          )}
-        </div>
+        {/* User Avatar with Custom Geometric Shapes (GitHub Identicon style) */}
+        <UserAvatar
+          name={fullName}
+          avatarUrl={avatarUrl}
+          paletteIndex={paletteIndex}
+          size={26}
+        />
 
         {/* Name / Short label */}
         <span className="text-xs font-semibold text-neutral-200 group-hover:text-white max-w-[90px] sm:max-w-[120px] truncate">
@@ -93,30 +102,27 @@ export default function UserMenu() {
       </button>
 
       {/* ── Dropdown Menu (Liquid Glass Aesthetic) ── */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 rounded-3xl p-3 bg-[#0e121c]/85 backdrop-blur-3xl border border-white/[0.14] shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] z-50 animate-in fade-in zoom-in-95 duration-200">
-          {/* Top specular highlight */}
-          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
+            className="absolute right-0 mt-2 w-64 rounded-3xl p-3 bg-[#0e121c]/90 backdrop-blur-3xl border border-white/[0.14] shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] z-50 overflow-hidden"
+          >
+            {/* Top specular highlight */}
+            <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
           {/* User Details Header */}
           <div className="p-2.5 mb-2 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full overflow-hidden border border-white/25 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-md">
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
-                    alt={fullName}
-                    width={36}
-                    height={36}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <span className="text-sm font-bold text-white">
-                    {userInitial}
-                  </span>
-                )}
-              </div>
+              <UserAvatar
+                name={fullName}
+                avatarUrl={avatarUrl}
+                paletteIndex={paletteIndex}
+                size={36}
+              />
               <div className="overflow-hidden flex-1">
                 <p className="text-xs font-bold text-white truncate">
                   {fullName}
@@ -180,8 +186,8 @@ export default function UserMenu() {
               <span>{t.report || "Report & Feedback"}</span>
             </a>
 
-            {/* Admin Dashboard (only visible for designated admin) */}
-            {user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
+            {/* Admin Dashboard (only visible for designated admin when on localhost) */}
+            {isLocalhost && user.email?.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "xui.dev.off@gmail.com").toLowerCase() && (
               <Link
                 href="/admin"
                 onClick={() => setIsOpen(false)}
@@ -213,8 +219,9 @@ export default function UserMenu() {
             <LogOut className="w-4 h-4" />
             <span>{t.signOut || "Sign Out"}</span>
           </button>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
     </div>
   );
 }

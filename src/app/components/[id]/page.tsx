@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
-import { COMPONENTS_DATA } from "@/data/componentsData";
+import { getAllComponents, getRegistryComponent } from "@/lib/registry";
 import ComponentDetailClient from "@/components/components-page/ComponentDetailClient";
 
+export const revalidate = 60; // Revalidate every 60 seconds (ISR)
+
 export async function generateStaticParams() {
-  return COMPONENTS_DATA.map((comp) => ({
+  const components = await getAllComponents();
+  return components.map((comp) => ({
     id: comp.id,
   }));
 }
@@ -14,7 +17,7 @@ export default async function ComponentPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const component = COMPONENTS_DATA.find((c) => c.id === id);
+  const component = await getRegistryComponent(id);
 
   if (!component) {
     notFound();

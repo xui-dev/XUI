@@ -24,11 +24,12 @@ const DEFAULT_CONFIG: Config = {
   intensity: 1.6,
 };
 
-const FRAMEWORKS = [
-  { id: "react" as const, name: "React" },
-  { id: "html" as const, name: "HTML / JS" },
-  { id: "vue" as const, name: "Vue" },
-  { id: "svelte" as const, name: "Svelte" },
+const FRAMEWORKS: { id: Framework; name: string }[] = [
+  { id: "react", name: "React" },
+  // Hidden for now — React only
+  // { id: "html", name: "HTML / JS" },
+  // { id: "vue", name: "Vue" },
+  // { id: "svelte", name: "Svelte" },
 ];
 
 export default function MacCodeCard() {
@@ -62,7 +63,7 @@ export default function MacCodeCard() {
               onClick={() => handleFrameworkChange(fw.id)}
               className={`relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-[13px] font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? "bg-gradient-to-b from-white/[0.22] to-white/[0.10] text-white border border-white/[0.24] shadow-[0_4px_18px_rgba(37,99,235,0.35),inset_0_1px_0_rgba(255,255,255,0.4)]"
+                  ? "bg-gradient-to-b from-white/[0.11] to-white/[0.04] text-white border border-white/[0.14] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.18)]"
                   : "text-neutral-400 hover:text-neutral-200 hover:bg-white/[0.06] border border-transparent"
               }`}
             >
@@ -214,7 +215,7 @@ export default function MacCodeCard() {
 
         {/* ── Taller IDE Code Body with Line Number Gutter ── */}
         <div
-          className={`relative z-10 flex p-3.5 sm:p-7 min-h-[320px] sm:min-h-[540px] max-h-[54vh] sm:max-h-none font-mono text-[11px] sm:text-[14px] leading-[1.85] sm:leading-[2.1] select-text transition-all duration-200 ease-out overflow-x-auto overflow-y-auto no-scrollbar touch-scroll-x ${
+          className={`relative z-10 flex p-3 sm:p-7 min-h-[220px] sm:min-h-[540px] max-h-[46vh] sm:max-h-none font-mono text-[11px] sm:text-[14px] leading-[1.8] sm:leading-[2.1] select-text transition-all duration-200 ease-out overflow-x-auto overflow-y-auto no-scrollbar touch-scroll-x ${
             isFading
               ? "opacity-25 translate-y-1 blur-[2px]"
               : "opacity-100 translate-y-0 blur-none"

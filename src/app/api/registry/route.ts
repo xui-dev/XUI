@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { getRegistryCatalog } from "@/lib/registry";
 
 export async function GET() {
   try {
-    const registryPath = path.join(process.cwd(), "registry", "registry.json");
-    const data = await fs.readFile(registryPath, "utf-8");
-    const registry = JSON.parse(data);
+    const registry = await getRegistryCatalog();
 
     return NextResponse.json(registry, {
       status: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
       },
     });
   } catch (error) {

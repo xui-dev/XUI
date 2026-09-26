@@ -3,7 +3,6 @@
 import Link from "next/link";
 import XUILogo from "@/components/XUILogo";
 import { useLanguage } from "@/context/LanguageContext";
-import { Heart } from "lucide-react";
 
 const SOCIAL_LINKS = [
   {
@@ -66,9 +65,12 @@ export default function Footer() {
 
           {/* Brand column — spans 2 cols on md */}
           <div className="col-span-2 flex flex-col gap-5">
-            {/* Logo */}
-            <Link href="/" aria-label="XUI Home" className="inline-flex w-fit transition-opacity hover:opacity-80">
-              <XUILogo height={28} color="#ffffff" />
+            {/* Logo + Beta Badge */}
+            <Link href="/" aria-label="XUI Home" className="inline-flex items-center gap-2.5 w-fit transition-opacity hover:opacity-80">
+              <XUILogo height={26} color="#ffffff" />
+              <span className="px-1.5 py-0.5 rounded-[5px] text-[10px] font-mono font-medium tracking-wider text-white bg-white/[0.08] border border-white/[0.18] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] select-none leading-none">
+                beta
+              </span>
             </Link>
 
             {/* Tagline */}
@@ -97,17 +99,17 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Products */}
+          {/* 1. Explore */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-              {t.products.title}
+              {t?.products?.title || "Explore"}
             </h3>
             <ul className="flex flex-col gap-2.5">
               {[
-                { label: t.products.components, href: "#components" },
-                { label: t.products.templates,  href: "#templates"  },
-                { label: t.products.showcase,   href: "#showcase"   },
-                { label: t.products.changelog,  href: "#changelog"  },
+                { label: t?.products?.components || "Components", href: "/components" },
+                { label: t?.products?.templates || "3D web templates", href: "/#3d-websites" },
+                { label: t?.products?.docs || "Docs", href: "/docs" },
+                { label: t?.products?.saved || "Saved Components", href: "/saved" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
@@ -121,48 +123,68 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* 2. Platform */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-              {t.company.title}
+              {t?.company?.title || "Platform"}
             </h3>
             <ul className="flex flex-col gap-2.5">
               {[
-                { label: t.company.about,    href: "#about"   },
-                { label: t.company.blog,     href: "#blog"    },
-                { label: t.company.careers,  href: "#careers" },
-                { label: t.company.contact,  href: "#contact" },
+                { label: t?.company?.profile || "Profile", href: "/profile" },
+                { label: t?.company?.settings || "Settings", href: "/settings" },
+                { label: t?.company?.customRequest || "Custom 3D Request", href: "mailto:contact@xui.dev?subject=Custom%203D%20Website%20Request" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
-                  >
-                    {item.label}
-                  </Link>
+                  {item.href.startsWith("mailto:") ? (
+                    <a
+                      href={item.href}
+                      className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* 3. Community & Legal */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-              {t.legal.title}
+              {t?.legal?.title || "Community"}
             </h3>
             <ul className="flex flex-col gap-2.5">
               {[
-                { label: t.legal.privacy, href: "#privacy" },
-                { label: t.legal.terms,   href: "#terms"   },
-                { label: t.legal.license, href: "#license" },
+                { label: t?.legal?.github || "GitHub", href: "https://github.com", external: true },
+                { label: t?.legal?.license || "MIT License", href: "https://github.com", external: true },
+                { label: t?.legal?.privacy || "Privacy Policy", href: "/docs", external: false },
+                { label: t?.legal?.terms || "Terms of Service", href: "/docs", external: false },
               ].map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
-                  >
-                    {item.label}
-                  </Link>
+                <li key={item.label}>
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="text-sm text-neutral-500 hover:text-white transition-colors duration-150"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -170,20 +192,10 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom Bar ────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-6 border-t border-white/[0.05]">
+        <div className="flex items-center justify-center py-6 border-t border-white/[0.05]">
           {/* Copyright */}
-          <p className="text-xs text-neutral-600 order-2 sm:order-1">
+          <p className="text-xs text-neutral-600 text-center">
             {t.copyright}
-          </p>
-
-          {/* Made with ♥ */}
-          <p className="flex items-center gap-1.5 text-xs text-neutral-600 order-1 sm:order-2">
-            {t.madeWith}
-            <Heart
-              className="w-3 h-3 text-blue-500 fill-blue-500/60"
-              aria-label="love"
-            />
-            {t.madeFor}
           </p>
         </div>
       </div>

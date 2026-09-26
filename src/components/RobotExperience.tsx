@@ -18,10 +18,15 @@ export default function RobotExperience() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Preloaded image caches
-  const heroImagesRef = useRef<HTMLImageElement[]>([]);
-  const laserImagesRef = useRef<HTMLImageElement[]>([]);
-  const flightImagesRef = useRef<HTMLImageElement[]>([]);
+  // Preloaded image caches (chunked & deferred to prevent mobile memory exhaustion)
+  const heroImagesRef = useRef<(HTMLImageElement | undefined)[]>([]);
+  const laserImagesRef = useRef<(HTMLImageElement | undefined)[]>([]);
+  const flightImagesRef = useRef<(HTMLImageElement | undefined)[]>([]);
+  const lastDrawnImageRef = useRef<HTMLImageElement | null>(null);
+  const laserLoadingStartedRef = useRef(false);
+  const flightLoadingStartedRef = useRef(false);
+  const startLoadingLaserRef = useRef<() => void>(() => {});
+  const startLoadingFlightRef = useRef<() => void>(() => {});
 
   // Hero gaze states
   const targetHeroFrameRef = useRef<number>(INITIAL_FRAME);
@@ -98,12 +103,20 @@ export default function RobotExperience() {
     []
   );
 
-  // Universal Canvas Drawer
+  // Universal Canvas Drawer with fallback to last rendered frame to eliminate black flicker
   const drawImageOnCanvas = useCallback((img: HTMLImageElement | undefined) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+
+    let targetImg =
+      img && img.complete && img.naturalWidth > 0
+        ? img
+        : lastDrawnImageRef.current ?? undefined;
+    if (!targetImg || !targetImg.complete || targetImg.naturalWidth === 0) return;
+
+    lastDrawnImageRef.current = targetImg;
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
@@ -111,8 +124,6 @@ export default function RobotExperience() {
     // Pure pitch black backdrop
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-    if (!img || !img.complete || img.naturalWidth === 0) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const topClearance =
@@ -142,8 +153,8 @@ export default function RobotExperience() {
       drawHeight = Math.max(availableHeight * 0.65, canvasWidth * 1.15);
       drawWidth = drawHeight * imgAspect;
       const eyeRatioX = 0.762;
-      drawX = (canvasWidth * 0.52) - (drawWidth * eyeRatioX);
-      drawY = topClearance - (0.04 * drawHeight);
+      drawX = canvasWidth * 0.52 - drawWidth * eyeRatioX;
+      drawY = topClearance - 0.04 * drawHeight;
     } else {
       drawWidth = canvasWidth;
       drawHeight = drawWidth / imgAspect;
@@ -155,7 +166,7 @@ export default function RobotExperience() {
     ctx.imageSmoothingQuality = "high";
 
     ctx.drawImage(
-      img,
+      targetImg,
       Math.round(drawX),
       Math.round(drawY),
       Math.round(drawWidth),
@@ -207,68 +218,125 @@ export default function RobotExperience() {
     }
   }, [drawImageOnCanvas]);
 
-  // Preload all frames (Hero 240 + Laser 96 + Flight 96 = 432)
+  // Progressive, staged loading with concurrency limits to prevent mobile memory exhaustion & connection pool starvation
   useEffect(() => {
-    let totalLoaded = 0;
-    const totalToLoad =
-      TOTAL_HERO_FRAMES + TOTAL_LASER_FRAMES + TOTAL_FLIGHT_FRAMES;
+    let isCancelled = false;
+    let idleLaserTimeout: ReturnType<typeof setTimeout> | null = null;
+    let idleFlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    const heroImages: HTMLImageElement[] = [];
-    const laserImages: HTMLImageElement[] = [];
-    const flightImages: HTMLImageElement[] = [];
+    // Helper: load frame URLs with a bounded concurrency pool (6 parallel requests max)
+    const loadBatch = (
+      urls: string[],
+      targetArray: (HTMLImageElement | undefined)[],
+      concurrency: number,
+      onProgress?: (loaded: number) => void,
+      onComplete?: () => void
+    ) => {
+      let active = 0;
+      let nextIdx = 0;
+      let loaded = 0;
 
-    // Preload initial alert frame (Frame 60) first for instant paint
+      const pump = () => {
+        if (isCancelled) return;
+        while (active < concurrency && nextIdx < urls.length) {
+          const i = nextIdx++;
+          active++;
+          const img = new Image();
+          img.src = urls[i];
+          const done = () => {
+            active--;
+            loaded++;
+            targetArray[i] = img;
+            onProgress?.(loaded);
+            if (loaded === urls.length) {
+              onComplete?.();
+            } else {
+              pump();
+            }
+          };
+          img.onload = done;
+          img.onerror = done;
+        }
+      };
+      pump();
+    };
+
+    // 1. Initial critical frame (Frame 60) for instantaneous first paint
     const initialFrame = new Image();
     initialFrame.src = getHeroFrameSrc(INITIAL_FRAME);
     initialFrame.onload = () => {
-      heroImages[INITIAL_FRAME - 1] = initialFrame;
+      if (isCancelled) return;
+      heroImagesRef.current[INITIAL_FRAME - 1] = initialFrame;
       drawImageOnCanvas(initialFrame);
     };
 
-    const onFrameLoad = () => {
-      totalLoaded++;
-      const pct = Math.round((totalLoaded / totalToLoad) * 100);
-      setLoadingProgress(pct);
-      if (totalLoaded >= TOTAL_HERO_FRAMES) {
-        setIsLoaded(true);
+    // 2. Define Laser & Flight loader functions
+    startLoadingLaserRef.current = () => {
+      if (laserLoadingStartedRef.current || isCancelled) return;
+      laserLoadingStartedRef.current = true;
+      if (idleLaserTimeout) clearTimeout(idleLaserTimeout);
+
+      const laserUrls: string[] = [];
+      for (let j = 1; j <= TOTAL_LASER_FRAMES; j++) {
+        laserUrls.push(getLaserFrameSrc(j));
       }
+      loadBatch(laserUrls, laserImagesRef.current, 6, undefined, () => {
+        // Laser completed: schedule idle flight loading
+        if (!flightLoadingStartedRef.current && !isCancelled) {
+          idleFlightTimeout = setTimeout(() => {
+            startLoadingFlightRef.current();
+          }, 2000);
+        }
+      });
     };
 
-    // 1. Hero frames
+    startLoadingFlightRef.current = () => {
+      if (flightLoadingStartedRef.current || isCancelled) return;
+      flightLoadingStartedRef.current = true;
+      if (idleFlightTimeout) clearTimeout(idleFlightTimeout);
+
+      const flightUrls: string[] = [];
+      for (let k = 1; k <= TOTAL_FLIGHT_FRAMES; k++) {
+        flightUrls.push(getFlightFrameSrc(k));
+      }
+      loadBatch(flightUrls, flightImagesRef.current, 6);
+    };
+
+    // 3. Hero frames: load with bounded concurrency (concurrency = 6)
+    const heroUrls: string[] = [];
     for (let i = 1; i <= TOTAL_HERO_FRAMES; i++) {
-      const img = new Image();
-      img.src = getHeroFrameSrc(i);
-      img.onload = onFrameLoad;
-      img.onerror = onFrameLoad;
-      heroImages.push(img);
+      heroUrls.push(getHeroFrameSrc(i));
     }
 
-    // 2. Laser frames
-    for (let j = 1; j <= TOTAL_LASER_FRAMES; j++) {
-      const img = new Image();
-      img.src = getLaserFrameSrc(j);
-      img.onload = onFrameLoad;
-      img.onerror = onFrameLoad;
-      laserImages.push(img);
-    }
-
-    // 3. Flight & Hide Robot frames
-    for (let k = 1; k <= TOTAL_FLIGHT_FRAMES; k++) {
-      const img = new Image();
-      img.src = getFlightFrameSrc(k);
-      img.onload = onFrameLoad;
-      img.onerror = onFrameLoad;
-      flightImages.push(img);
-    }
-
-    heroImagesRef.current = heroImages;
-    laserImagesRef.current = laserImages;
-    flightImagesRef.current = flightImages;
+    loadBatch(
+      heroUrls,
+      heroImagesRef.current,
+      6,
+      (loaded) => {
+        const pct = Math.round((loaded / TOTAL_HERO_FRAMES) * 100);
+        setLoadingProgress(pct);
+        if (loaded >= 30) {
+          setIsLoaded(true);
+        }
+      },
+      () => {
+        setIsLoaded(true);
+        // Hero completed: pre-warm laser frames after 1.5s idle if user hasn't scrolled yet
+        if (!laserLoadingStartedRef.current && !isCancelled) {
+          idleLaserTimeout = setTimeout(() => {
+            startLoadingLaserRef.current();
+          }, 1500);
+        }
+      }
+    );
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
     return () => {
+      isCancelled = true;
+      if (idleLaserTimeout) clearTimeout(idleLaserTimeout);
+      if (idleFlightTimeout) clearTimeout(idleFlightTimeout);
       window.removeEventListener("resize", resizeCanvas);
     };
   }, [drawImageOnCanvas, resizeCanvas]);
@@ -287,6 +355,14 @@ export default function RobotExperience() {
       const raw = -rect.top / totalScrollable;
       const progress = Math.max(0, Math.min(1, raw));
       scrollProgressRef.current = progress;
+
+      // Trigger lazy pre-loading as user approaches respective stages
+      if (progress > 0.01 && !laserLoadingStartedRef.current) {
+        startLoadingLaserRef.current();
+      }
+      if (progress > 0.20 && !flightLoadingStartedRef.current) {
+        startLoadingFlightRef.current();
+      }
 
       // ── Stage 1: Hero Gaze (0.00 -> 0.12) ──
       if (progress < 0.12) {

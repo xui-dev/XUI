@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Share2,
-  Copy,
-  Check,
   X,
   ExternalLink,
   MessageCircle,
   Send,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import CopyButton from "@/components/ui/CopyButton";
 
 export interface ShareModalProps {
   isOpen: boolean;
@@ -29,9 +29,13 @@ export default function ShareModal({
   description,
 }: ShareModalProps) {
   const { messages, dir } = useLanguage();
-  const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [canNativeShare, setCanNativeShare] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Compute full share URL safely on client
   useEffect(() => {
@@ -68,12 +72,6 @@ export default function ShareModal({
     };
   }, [isOpen, handleKeyDown]);
 
-  const handleCopy = () => {
-    if (!shareUrl) return;
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
-  };
 
   const handleNativeShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -100,10 +98,12 @@ export default function ShareModal({
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
   const telegramUrl = `https://t.me/share/url?url=${encodedUrl}&text=${shareText}`;
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           {/* Backdrop Scrim */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -111,7 +111,7 @@ export default function ShareModal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md cursor-pointer"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
           />
 
           {/* Modal Container */}
@@ -120,6 +120,7 @@ export default function ShareModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 10 }}
             transition={{ type: "spring", stiffness: 350, damping: 28 }}
+            onClick={(e) => e.stopPropagation()}
             className="relative z-10 w-full max-w-md my-auto rounded-3xl sm:rounded-[28px] bg-[#0d101a]/95 backdrop-blur-2xl border border-white/[0.14] p-5 sm:p-6 text-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.25)] overflow-hidden"
           >
             {/* Top specular glow line */}
@@ -166,27 +167,14 @@ export default function ShareModal({
                   className="flex-1 bg-transparent px-3 text-xs sm:text-sm font-mono text-neutral-200 outline-none select-all truncate"
                 />
 
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold font-mono transition-all duration-200 cursor-pointer shrink-0 active:scale-95 ${
-                    copied
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
-                  }`}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{messages.share?.copied || "Copied!"}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>{messages.share?.copyBtn || "Copy"}</span>
-                    </>
-                  )}
-                </button>
+                <CopyButton
+                  text={shareUrl}
+                  label={messages.share?.copyBtn || "Copy"}
+                  copiedLabel={messages.share?.copied || "Copied!"}
+                  className={`px-3.5 py-2 rounded-xl font-semibold shrink-0
+                    bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+                    text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]`}
+                />
               </div>
             </div>
 
@@ -265,6 +253,7 @@ export default function ShareModal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

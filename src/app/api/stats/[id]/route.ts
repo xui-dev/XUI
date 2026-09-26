@@ -16,17 +16,22 @@ export async function GET(
 
     const { data, error } = await supabase
       .from("components_stats")
-      .select("views, likes")
+      .select("views, likes, shares")
       .eq("id", id)
       .single();
 
     if (error || !data) {
-      return NextResponse.json({ id, views: 28000, likes: 1830 });
+      return NextResponse.json({ id, views: 28000, likes: 1830, shares: 0 });
     }
 
-    return NextResponse.json({ id, views: data.views, likes: data.likes });
+    return NextResponse.json({
+      id,
+      views: data.views,
+      likes: data.likes,
+      shares: data.shares ?? 0,
+    });
   } catch {
-    return NextResponse.json({ id, views: 28000, likes: 1830 });
+    return NextResponse.json({ id, views: 28000, likes: 1830, shares: 0 });
   }
 }
 
@@ -36,19 +41,28 @@ export async function POST(
 ) {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
-  const action = searchParams.get("action"); // "view" | "like" | "unlike"
+  const action = searchParams.get("action"); // "view" | "like" | "unlike" | "share"
 
   try {
     const supabase = await createClient();
     if (!supabase) {
-      return NextResponse.json({ success: true, message: "Local mock update" });
+      return NextResponse.json(
+        { success: false, error: "Database client unavailable" },
+        { status: 503 }
+      );
     }
 
     if (action === "view") {
       const { data, error } = await supabase.rpc("increment_component_views", {
         component_id: id,
       });
-      return NextResponse.json({ success: !error, views: data });
+      if (error) {
+        return NextResponse.json(
+          { success: false, error: error.message },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json({ success: true, views: data });
     }
 
     if (action === "like" || action === "unlike") {
@@ -57,11 +71,33 @@ export async function POST(
         component_id: id,
         is_like: isLike,
       });
-      return NextResponse.json({ success: !error, likes: data });
+      if (error) {
+        return NextResponse.json(
+          { success: false, error: error.message },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json({ success: true, likes: data });
+    }
+
+    if (action === "share") {
+      const { data, error } = await supabase.rpc("increment_component_shares", {
+        component_id: id,
+      });
+      if (error) {
+        return NextResponse.json(
+          { success: false, error: error.message },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json({ success: true, shares: data });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch {
-    return NextResponse.json({ success: true, message: "Fallback" });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err?.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }

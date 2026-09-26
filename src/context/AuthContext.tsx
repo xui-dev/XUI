@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { resetSavedCloudCache } from "@/hooks/useSavedComponents";
 
 interface AuthContextType {
   user: User | null;
@@ -30,6 +31,12 @@ interface AuthContextType {
     fullName?: string
   ) => Promise<{ error: AuthError | Error | null; data?: unknown }>;
   signOut: () => Promise<void>;
+  updateUserProfile: (metadata: {
+    full_name?: string;
+    avatar_url?: string | null;
+    avatar_palette?: number | null;
+    name_updated_at?: string;
+  }) => Promise<{ error: AuthError | Error | null; user?: User | null }>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -45,6 +52,7 @@ const AuthContext = createContext<AuthContextType>({
   signInWithEmail: async () => ({ error: null }),
   signUpWithEmail: async () => ({ error: null }),
   signOut: async () => {},
+  updateUserProfile: async () => ({ error: null }),
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -204,10 +212,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 4. Sign Out
   const signOut = useCallback(async () => {
     if (!supabase) return;
-    await supabase.auth.signOut();
+
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("Supabase signOut error:", err);
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        // Purge guest and legacy shared keys
+        localStorage.removeItem("xui_saved_components");
+        localStorage.removeItem("xui_guest_saved_components");
+
+        // Purge guest like keys
+        const guestLikeKeys: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("xui_guest_liked_")) {
+            guestLikeKeys.push(key);
+          }
+        }
+        guestLikeKeys.forEach((k) => localStorage.removeItem(k));
+
+        window.dispatchEvent(
+          new CustomEvent("xui_saved_sync", { detail: { savedIds: [] } })
+        );
+      } catch {
+        // LocalStorage may be restricted in private browsing
+      }
+    }
+
+    // Reset module-level saved components cloud cache
+    resetSavedCloudCache();
+
     setUser(null);
     setSession(null);
   }, [supabase]);
+
+  // 5. Update User Profile
+  const updateUserProfile = useCallback(
+    async (metadata: {
+      full_name?: string;
+      avatar_url?: string | null;
+      avatar_palette?: number | null;
+      name_updated_at?: string;
+    }) => {
+      if (!supabase) {
+        return { error: new Error("Supabase is not configured yet") };
+      }
+
+      const { data, error } = await supabase.auth.updateUser({
+        data: metadata,
+      });
+
+      if (!error && data?.user) {
+        setUser(data.user);
+      }
+
+      return { error, user: data?.user ?? null };
+    },
+    [supabase]
+  );
 
   return (
     <AuthContext.Provider
@@ -224,6 +290,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithEmail,
         signUpWithEmail,
         signOut,
+        updateUserProfile,
       }}
     >
       {children}

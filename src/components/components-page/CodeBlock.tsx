@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import CopyButton from "@/components/ui/CopyButton";
 
 export interface CodeBlockProps {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ export interface CodeBlockProps {
 export function CodeBlock({ children, className = "" }: CodeBlockProps) {
   return (
     <div
-      className={`relative w-full rounded-2xl overflow-hidden bg-[#0a0c16]/95 border border-white/[0.12] transition-all duration-200 ${className}`}
+      className={`relative w-full rounded-2xl bg-[#0a0c16]/95 border border-white/[0.12] transition-all duration-200 ${className}`}
       style={{
         boxShadow:
           "0 20px 50px -10px rgba(0, 0, 0, 0.85), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15)",
@@ -141,7 +141,11 @@ export interface XUICodeBlockProps {
   language?: string;
   filename: string;
   frameworkBadge: string;
-  badgeColor?: string; // hex or tailwind text/bg
+  badgeColor?: string;
+  /** accent bar color on the left edge of the header (tailwind bg class) */
+  accentBar?: string;
+  /** Extra action buttons rendered after the Copy button in the header */
+  extraActions?: React.ReactNode;
 }
 
 export function XUICodeBlock({
@@ -150,48 +154,50 @@ export function XUICodeBlock({
   filename,
   frameworkBadge,
   badgeColor = "text-blue-400 bg-blue-500/15 border-blue-500/30",
+  accentBar = "bg-blue-500",
+  extraActions,
 }: XUICodeBlockProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <CodeBlock className="w-full shadow-2xl">
-      <CodeBlockGroup className="border-b border-white/[0.08] py-2.5 px-4">
-        {/* Badge + Filename */}
-        <div className="flex items-center gap-2.5">
-          <div
-            className={`rounded-md px-2 py-0.5 text-xs font-semibold border ${badgeColor}`}
+      {/* ── Header ── */}
+      <div className="relative flex items-center justify-between px-4 py-0 border-b border-white/[0.07] min-h-[44px] overflow-visible">
+
+        {/* Subtle header background */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.035) 0%, transparent 60%)",
+          }}
+        />
+
+        {/* Left: badge + filename */}
+        <div className="relative flex items-center gap-3 pl-3">
+          {/* Framework badge pill */}
+          <span
+            className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold border tracking-wide ${badgeColor}`}
           >
             {frameworkBadge}
-          </div>
-          <span className="text-neutral-400 text-xs font-mono">{filename}</span>
+          </span>
+
+          {/* Separator */}
+          <span className="text-white/[0.12] text-sm select-none">/</span>
+
+          {/* Filename */}
+          <span className="text-neutral-300 text-xs font-mono tracking-tight">
+            {filename}
+          </span>
         </div>
 
-        {/* Copy Button */}
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono transition-all duration-150 border cursor-pointer active:scale-95 text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.1]"
-          title="Copy Code"
-        >
-          {copied ? (
-            <>
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-sans">Copied!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="h-3.5 w-3.5 text-neutral-400 group-hover:text-white" />
-              <span className="font-sans">Copy</span>
-            </>
-          )}
-        </button>
-      </CodeBlockGroup>
+        {/* Right: actions */}
+        <div className="relative flex items-center gap-2 py-2.5">
+          <CopyButton
+            text={code}
+            className="px-2.5 py-1 rounded-lg border text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.09]"
+          />
+          {extraActions}
+        </div>
+      </div>
 
       <CodeBlockCode code={code} language={language} />
     </CodeBlock>

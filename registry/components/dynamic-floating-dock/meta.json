@@ -7,8 +7,8 @@
   "category": "navbar",
   "categoryLabel": "Navbar",
   "categoryLabelAr": "أشرطة تنقل",
-  "author": "Aymen",
-  "authorHandle": "@aymen_dev",
+  "author": "XUI",
+  "authorHandle": "@xui_dev",
   "dependencies": [
     "lucide-react"
   ],
