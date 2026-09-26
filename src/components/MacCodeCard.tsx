@@ -53,7 +53,7 @@ export default function MacCodeCard() {
   return (
     <div className="w-[690px] max-w-[95vw] flex flex-col gap-2.5 sm:gap-3.5 font-sans pointer-events-auto mx-auto sm:mx-0">
       {/* ── 1. Separate Language Switcher Bar (Detached from Mac Window) ── */}
-      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-[#0a0c16]/85 backdrop-blur-2xl border border-white/[0.14] shadow-[0_12px_32px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2)] w-full sm:w-fit overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-[#0a0c16]/85 backdrop-blur-2xl border border-white/[0.14] shadow-[0_12px_32px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2)] w-fit self-start overflow-x-auto no-scrollbar">
         {FRAMEWORKS.map((fw) => {
           const isActive = activeFramework === fw.id;
           return (

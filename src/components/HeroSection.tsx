@@ -18,7 +18,7 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
     <div
       dir={dir}
       style={style}
-      className={`absolute inset-0 z-20 flex flex-col justify-end sm:justify-center pb-8 sm:pb-0 px-5 sm:px-12 lg:px-20 xl:px-28 pointer-events-none select-none ${className}`}
+      className={`absolute inset-0 z-20 flex flex-col justify-end sm:justify-center pb-20 sm:pb-0 px-5 sm:px-12 lg:px-20 xl:px-28 pointer-events-none select-none ${className}`}
     >
       <div className="max-w-2xl flex flex-col items-start gap-3 sm:gap-6 lg:gap-8">
         {/* 1. Hero Logo (Desktop only - mobile already has logo in navbar & robot chest) */}
