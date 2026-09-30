@@ -8,7 +8,6 @@ import {
   X,
   BadgeCheck,
   Globe,
-  Layers,
   ExternalLink,
   Calendar,
 } from "lucide-react";
@@ -183,16 +182,6 @@ export default function CreatorProfileModal({
                   <span>Verified 2026</span>
                 </div>
               </div>
-
-              {/* 6. Footer Action Button */}
-              <Link
-                href="/components"
-                onClick={onClose}
-                className="mt-1 w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(37,99,235,0.4)] cursor-pointer active:scale-98"
-              >
-                <Layers className="w-4 h-4" />
-                <span>Explore All Components by {author}</span>
-              </Link>
             </div>
           </motion.div>
         </div>

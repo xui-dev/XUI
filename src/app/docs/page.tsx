@@ -451,7 +451,6 @@ export default function DocsPage() {
             <nav className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-x-visible no-scrollbar py-1">
               {filteredDocs.map((item) => {
                 const isActive = item.id === activeDoc.id;
-                const Icon = item.icon;
 
                 return (
                   <button
@@ -460,20 +459,11 @@ export default function DocsPage() {
                     onClick={() => setActiveId(item.id)}
                     className={`group relative flex items-center justify-between w-full px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap lg:whitespace-normal text-left select-none ${
                       isActive
-                        ? "bg-gradient-to-r from-blue-600/25 via-indigo-600/15 to-transparent text-white border border-blue-500/40 shadow-[0_0_20px_rgba(37,99,235,0.25),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                        ? "bg-gradient-to-r from-blue-600/25 via-indigo-600/15 to-transparent text-white border border-blue-500/40 shadow-[0_0_20px_rgba(37,99,235,0.25),inset_0_1px_0_rgba(255,255,255,0.2)] font-semibold"
                         : "text-neutral-400 hover:text-white hover:bg-white/[0.04] border border-transparent"
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon
-                        className={`w-4 h-4 transition-colors ${
-                          isActive
-                            ? "text-blue-400"
-                            : "text-neutral-500 group-hover:text-neutral-300"
-                        }`}
-                      />
-                      <span>{item.label}</span>
-                    </div>
+                    <span>{item.label}</span>
 
                     {isActive && (
                       <span className="hidden lg:inline-flex w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]" />
