@@ -32,10 +32,10 @@ export default function ProfilePage() {
           <div className="p-4 mb-4 rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.3)]">
             <UserIcon className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-bold mb-2 select-text">
             {t.signInTitle || "Sign in to view Profile"}
           </h2>
-          <p className="text-sm text-neutral-400 mb-6">
+          <p className="text-sm text-neutral-400 mb-6 select-text">
             {t.signInDesc ||
               "Please sign in to access your personal developer dashboard and saved components."}
           </p>
@@ -79,10 +79,10 @@ export default function ProfilePage() {
         {/* Navigation / Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight select-text">
               {t.title || "Developer Profile"}
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1 select-text">
               {t.subtitle ||
                 "Manage your personal developer identity and account preferences."}
             </p>
@@ -111,13 +111,13 @@ export default function ProfilePage() {
             />
 
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight select-text">
                 {fullName}
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-mono mt-1">
+              <p className="text-xs sm:text-sm text-neutral-400 font-mono mt-1 select-text">
                 {user.email}
               </p>
-              <div className="mt-2 flex items-center gap-2 text-[11px] text-neutral-500 font-mono">
+              <div className="mt-2 flex items-center gap-2 text-[11px] text-neutral-500 font-mono select-text">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>
                   {t.memberSince || "Member since"} {createdAt}
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                 shape="circle"
                 className="border border-white/20 shadow-md group-hover:scale-105 transition-transform"
               />
-              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors select-text">
                 {t.avatarCard?.title || "Profile Avatar"}
               </h3>
             </div>
@@ -181,7 +181,7 @@ export default function ProfilePage() {
                 <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider block">
                   {t.nameCard?.title || "Display Name"}
                 </span>
-                <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors mt-0.5">
+                <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors mt-0.5 select-text">
                   {fullName}
                 </h3>
               </div>
@@ -207,7 +207,7 @@ export default function ProfilePage() {
                 <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider block">
                   {t.emailCard?.title || "Email Address"}
                 </span>
-                <h3 className="text-base font-bold text-white font-mono mt-0.5">
+                <h3 className="text-base font-bold text-white font-mono mt-0.5 select-text">
                   {user.email}
                 </h3>
               </div>

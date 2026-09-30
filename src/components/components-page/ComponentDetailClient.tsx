@@ -150,7 +150,7 @@ export default function ComponentDetailClient({ component }: ComponentDetailClie
 
         {/* ── Component Title Header ── */}
         <div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight select-text">
             {title}
           </h1>
         </div>

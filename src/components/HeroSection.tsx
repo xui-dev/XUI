@@ -70,7 +70,7 @@ export default function HeroSection({ style, className = "" }: HeroSectionProps)
 
           {/* Secondary CTA: Star on GitHub (Obsidian Titanium with Live Star Counter Badge, Zero Yellow) */}
           <a
-            href="https://github.com"
+            href="https://github.com/xui-dev/XUI-components-"
             target="_blank"
             rel="noopener noreferrer"
             className="relative group overflow-hidden h-10 sm:h-12 px-3.5 sm:px-5 rounded-2xl

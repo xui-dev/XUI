@@ -5,7 +5,7 @@ import Link from "next/link";
 import ElasticMesh from "./ElasticMesh";
 import BlurText from "./BlurText";
 import { useLanguage } from "@/context/LanguageContext";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Websites3DSection() {
   const { messages } = useLanguage();
@@ -99,8 +99,6 @@ export default function Websites3DSection() {
           >
             {/* Top Specular Hairline Highlight */}
             <span className="pointer-events-none absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-
-            <Sparkles className="relative z-10 w-4 h-4 text-neutral-300 group-hover:text-white transition-colors" />
 
             <span className="relative z-10">{t.customRequest}</span>
           </button>

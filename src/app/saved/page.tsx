@@ -42,8 +42,7 @@ export default function SavedPage() {
                 author: data.author || "XUI",
                 authorHandle: data.authorHandle || "@xui_dev",
                 authorAvatar: "/XUI.png",
-                likes: data.likes ?? 120,
-                views: data.views ?? "2.4k",
+                views: data.views ?? "0",
                 dependencies: data.dependencies || [],
                 reactCode: data.files?.[0]?.content || "",
                 typescriptCode: data.files?.[0]?.content || "",
@@ -88,8 +87,8 @@ export default function SavedPage() {
 
       {/* Ambient background glows */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-        <div className="absolute top-28 left-1/3 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[180px]" />
-        <div className="absolute bottom-28 right-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[160px]" />
+        <div className="absolute top-28 left-1/4 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[170px]" />
+        <div className="absolute top-60 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[160px]" />
       </div>
 
       <main className="relative z-10 flex-1 pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full flex flex-col gap-8">
@@ -118,7 +117,7 @@ export default function SavedPage() {
         {/* Components Grid */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <Loader2 className="w-7 h-7 text-amber-500 animate-spin" />
+            <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
             <span className="text-xs text-neutral-500 font-mono">Loading saved components...</span>
           </div>
         ) : activeComponents.length > 0 ? (
@@ -129,8 +128,8 @@ export default function SavedPage() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl bg-[#0c0e1a]/60 border border-white/[0.08] text-center max-w-lg mx-auto w-full">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
-              <Bookmark className="w-7 h-7" />
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 mb-4 shadow-[0_0_24px_rgba(37,99,235,0.2)]">
+              <Bookmark className="w-7 h-7 fill-blue-400/20 text-blue-400" />
             </div>
             <h2 className="text-lg font-bold text-white mb-1.5">No saved components yet</h2>
             <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed mb-6">

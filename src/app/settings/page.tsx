@@ -37,10 +37,10 @@ export default function SettingsPage() {
         {/* Navigation / Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight select-text">
               {t.title || "Platform Settings"}
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1 select-text">
               {t.subtitle || "Manage your preferences, security, and account settings."}
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function SettingsPage() {
               <div className="w-[52px] h-[52px] rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-neutral-300 shadow-md group-hover:scale-105 transition-transform shrink-0">
                 <UserIcon className="w-5 h-5 text-neutral-300" />
               </div>
-              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors select-text">
                 {t.profileCard?.title || "Profile"}
               </h3>
             </div>
@@ -84,7 +84,7 @@ export default function SettingsPage() {
               <div className="w-[52px] h-[52px] rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-neutral-300 shadow-md group-hover:scale-105 transition-transform shrink-0">
                 <Shield className="w-5 h-5 text-neutral-300" />
               </div>
-              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors select-text">
                 {t.privacyCard?.title || "Privacy & Security"}
               </h3>
             </div>
@@ -106,7 +106,7 @@ export default function SettingsPage() {
               <div className="w-[52px] h-[52px] rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-neutral-300 shadow-md group-hover:scale-105 transition-transform shrink-0">
                 <Globe className="w-5 h-5 text-neutral-300" />
               </div>
-              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors select-text">
                 {t.languageCard?.title || "Language"}
               </h3>
             </div>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
               <div className="w-[52px] h-[52px] rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-neutral-300 shadow-md group-hover:scale-105 transition-transform shrink-0">
                 <LifeBuoy className="w-5 h-5 text-neutral-300" />
               </div>
-              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+              <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors select-text">
                 {t.supportCard?.title || "Support"}
               </h3>
             </div>

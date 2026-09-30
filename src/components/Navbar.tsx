@@ -206,8 +206,10 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl text-neutral-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] active:scale-95 transition-all cursor-pointer"
-            aria-label="Toggle navigation menu"
+            className="p-2 rounded-xl text-neutral-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation-drawer"
           >
             {mobileMenuOpen ? (
               <X className="w-5 h-5 text-blue-400" />
@@ -221,6 +223,7 @@ export default function Navbar() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
+              id="mobile-navigation-drawer"
               initial={{ opacity: 0, y: -10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}

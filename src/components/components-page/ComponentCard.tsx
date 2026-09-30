@@ -18,7 +18,6 @@ export interface ComponentCardProps {
 export default function ComponentCard({ component, locale = "en" }: ComponentCardProps) {
   const { views, recordShare } = useComponentStats(
     component.id,
-    component.likes,
     component.views
   );
   const { isSaved: checkIsSaved, toggleSave } = useSavedComponents();
@@ -61,7 +60,8 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
               <button
                 type="button"
                 onClick={(e) => toggleSave(component.id, e)}
-                className={`flex items-center justify-center p-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
+                aria-label={isSaved ? `Remove ${title} from saved` : `Save ${title}`}
+                className={`flex items-center justify-center p-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${
                   isSaved
                     ? "text-blue-400 bg-blue-500/15 border-blue-500/30 shadow-[0_0_12px_rgba(37,99,235,0.25)]"
                     : "text-neutral-400 hover:text-white bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.08]"
@@ -79,7 +79,8 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
               <button
                 type="button"
                 onClick={handleShareClick}
-                className="flex items-center justify-center p-1.5 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all cursor-pointer"
+                aria-label={`Share ${title}`}
+                className="flex items-center justify-center p-1.5 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
                 title="Share component link"
               >
                 <Share2 className="w-3.5 h-3.5 text-blue-400" />
@@ -89,7 +90,8 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
             {/* Right: Open Details Button (moved down from preview window) */}
             <Link
               href={`/components/${component.id}`}
-              className="group/details flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] hover:border-blue-500/40 transition-all cursor-pointer"
+              aria-label={`View details of ${title}`}
+              className="group/details flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] hover:border-blue-500/40 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
               title="Open Details"
             >
               <span>Open Details</span>
@@ -98,10 +100,10 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
           </div>
 
           <Link href={`/components/${component.id}`} className="group/link block">
-            <h3 className="text-base font-bold text-white group-hover/link:text-blue-300 transition-colors flex items-center gap-1.5">
+            <h3 className="text-base font-bold text-white group-hover/link:text-blue-300 transition-colors flex items-center gap-1.5 select-text">
               {title}
             </h3>
-            <p className="text-xs text-neutral-400 line-clamp-2 mt-1 leading-relaxed">
+            <p className="text-xs text-neutral-400 line-clamp-2 mt-1 leading-relaxed select-text">
               {description}
             </p>
           </Link>
@@ -117,25 +119,24 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
               e.stopPropagation();
               setIsCreatorOpen(true);
             }}
-            className="group/creator flex items-center gap-1.5 py-0.5 px-1.5 -ml-1 rounded-xl hover:bg-white/[0.06] border border-transparent hover:border-white/[0.1] transition-all cursor-pointer text-left"
+            className="group/creator relative p-0.5 rounded-full hover:scale-105 active:scale-95 transition-all cursor-pointer"
             title={`View ${component.author} Profile`}
           >
-            <div className="relative w-4.5 h-4.5 rounded-full overflow-hidden border border-white/20 shrink-0 bg-black flex items-center justify-center shadow-sm">
-              <img
-                src={component.authorAvatar || "/XUI.png"}
-                alt={component.author}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-neutral-400 font-medium">by</span>
-              <span className="text-[11px] text-neutral-200 group-hover/creator:text-white font-semibold transition-colors">
-                {component.author}
-              </span>
-              <span className="p-0.5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+            {/* Creator Circle Avatar with Overlay Verified Badge */}
+            <div className="relative shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 group-hover/creator:border-white/40 bg-black flex items-center justify-center shadow-md transition-colors">
+                <img
+                  src={component.authorAvatar || "/XUI.png"}
+                  alt={component.author}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 p-0.5 rounded-full bg-blue-600 text-white border-2 border-[#0d0f1a] flex items-center justify-center shadow-sm"
+                title="Verified"
+              >
                 <BadgeCheck className="w-2.5 h-2.5 fill-white text-blue-600" />
-              </span>
+              </div>
             </div>
           </button>
 

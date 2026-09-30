@@ -111,7 +111,6 @@ export async function POST(request: Request) {
     const registryJsonPath = path.join(registryDir, "registry.json");
 
     let registryIndex = {
-      $schema: "https://xui.dev/schema/registry.json",
       name: "xui",
       homepage: "https://xui.dev",
       repository: "https://github.com/xui-dev/XUI-components-",

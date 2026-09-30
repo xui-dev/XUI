@@ -50,8 +50,7 @@ export default async function AuthorProfilePage({ params }: AuthorProfilePagePro
     author: item.author || "XUI",
     authorHandle: item.authorHandle || "@xui_dev",
     authorAvatar: item.authorAvatar || "/XUI.png",
-    likes: 120,
-    views: "2.4k",
+    views: "0",
     dependencies: item.dependencies || [],
     reactCode: "",
   }));
@@ -114,15 +113,15 @@ export default async function AuthorProfilePage({ params }: AuthorProfilePagePro
             {/* Info & Bio */}
             <div className="flex flex-col gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight select-text">
                   {authorName}
                 </h1>
-                <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1">
+                <p className="text-xs sm:text-sm font-mono text-neutral-400 mt-1 select-text">
                   {authorHandle}
                 </p>
               </div>
 
-              <p className="text-sm text-neutral-300 leading-relaxed max-w-2xl">
+              <p className="text-sm text-neutral-300 leading-relaxed max-w-2xl select-text">
                 {isXUI
                   ? "The official primary publishing account for the XUI platform. Designing, developing, and curating interactive, physics-based UI components and 3D web experiences."
                   : `Creator profile for ${authorName} on XUI.`}

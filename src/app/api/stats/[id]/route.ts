@@ -11,27 +11,26 @@ export async function GET(
     const supabase = await createClient();
     if (!supabase) {
       // Fallback default
-      return NextResponse.json({ id, views: 28000, likes: 1830 });
+      return NextResponse.json({ id, views: 0, shares: 0 });
     }
 
     const { data, error } = await supabase
       .from("components_stats")
-      .select("views, likes, shares")
+      .select("views, shares")
       .eq("id", id)
       .single();
 
     if (error || !data) {
-      return NextResponse.json({ id, views: 28000, likes: 1830, shares: 0 });
+      return NextResponse.json({ id, views: 0, shares: 0 });
     }
 
     return NextResponse.json({
       id,
       views: data.views,
-      likes: data.likes,
       shares: data.shares ?? 0,
     });
   } catch {
-    return NextResponse.json({ id, views: 28000, likes: 1830, shares: 0 });
+    return NextResponse.json({ id, views: 0, shares: 0 });
   }
 }
 
@@ -41,7 +40,7 @@ export async function POST(
 ) {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
-  const action = searchParams.get("action"); // "view" | "like" | "unlike" | "share"
+  const action = searchParams.get("action"); // "view" | "share"
 
   try {
     const supabase = await createClient();
@@ -63,21 +62,6 @@ export async function POST(
         );
       }
       return NextResponse.json({ success: true, views: data });
-    }
-
-    if (action === "like" || action === "unlike") {
-      const isLike = action === "like";
-      const { data, error } = await supabase.rpc("toggle_component_like", {
-        component_id: id,
-        is_like: isLike,
-      });
-      if (error) {
-        return NextResponse.json(
-          { success: false, error: error.message },
-          { status: 500 }
-        );
-      }
-      return NextResponse.json({ success: true, likes: data });
     }
 
     if (action === "share") {

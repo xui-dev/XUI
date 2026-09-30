@@ -34,7 +34,6 @@ export async function GET(
       author: component.author,
       authorHandle: component.authorHandle,
       authorAvatar: component.authorAvatar,
-      likes: component.likes,
       views: component.views,
       dependencies: component.dependencies,
       files: [

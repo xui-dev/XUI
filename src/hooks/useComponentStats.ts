@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 
 function formatViews(val: number | string): string {
+  if (val === 0 || val === "0") return "0";
+  if (val == null || val === "") return "0";
   if (typeof val === "string" && (val.endsWith("k") || val.endsWith("M"))) {
     return val;
   }
@@ -15,7 +17,6 @@ function formatViews(val: number | string): string {
 
 export function useComponentStats(
   componentId: string,
-  _initialLikes: number = 0,
   initialViews: string = "0",
   options?: { autoFetch?: boolean }
 ) {
@@ -88,10 +89,6 @@ export function useComponentStats(
   }, [componentId]);
 
   return {
-    // Backward-compatible stubs
-    likes: 0,
-    isLiked: false,
-    toggleLike: () => {},
     views,
     shares,
     recordShare,

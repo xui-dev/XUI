@@ -84,7 +84,7 @@ export function stripTypeScript(code: string): string {
 /**
  * Resolve a single component by its ID/slug.
  * Reads React code from index.tsx and index.jsx, and metadata from meta.json,
- * then merges dynamic views/likes from Supabase if available.
+ * then merges dynamic views from Supabase if available.
  */
 export async function getRegistryComponent(id: string): Promise<ComponentItem | null> {
   if (!id) return null;
@@ -166,20 +166,18 @@ export async function getRegistryComponent(id: string): Promise<ComponentItem | 
   }
 
   // Fetch dynamic stats from Supabase if available
-  let likes = 120;
-  let views = "2.4k";
+  let views = "0";
 
   try {
     const supabase = await createClient();
     if (supabase) {
       const { data: stats } = await supabase
         .from("components_stats")
-        .select("views, likes")
+        .select("views")
         .eq("id", cleanId)
         .single();
 
       if (stats) {
-        likes = stats.likes ?? likes;
         views = stats.views >= 1000 ? `${(stats.views / 1000).toFixed(1)}k` : `${stats.views}`;
       }
     }
@@ -202,7 +200,6 @@ export async function getRegistryComponent(id: string): Promise<ComponentItem | 
     author: meta?.author || "XUI",
     authorHandle: meta?.authorHandle || "@xui_dev",
     authorAvatar: meta?.authorAvatar || "/XUI.png",
-    likes,
     views,
     dependencies: meta?.dependencies || ["lucide-react"],
     reactCode: code || jsCode || "",

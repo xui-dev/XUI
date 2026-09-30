@@ -225,16 +225,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("xui_saved_components");
         localStorage.removeItem("xui_guest_saved_components");
 
-        // Purge guest like keys
-        const guestLikeKeys: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith("xui_guest_liked_")) {
-            guestLikeKeys.push(key);
-          }
-        }
-        guestLikeKeys.forEach((k) => localStorage.removeItem(k));
-
         window.dispatchEvent(
           new CustomEvent("xui_saved_sync", { detail: { savedIds: [] } })
         );

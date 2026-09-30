@@ -77,8 +77,9 @@ export default function LanguageModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
                 title={t.close || "Close"}
+                aria-label={t.close || "Close"}
               >
                 <X className="w-5 h-5" />
               </button>

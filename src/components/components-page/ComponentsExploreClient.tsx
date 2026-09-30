@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import LineSidebar from "@/components/components-page/LineSidebar";
 import ComponentCard from "@/components/components-page/ComponentCard";
 import { CATEGORIES, type ComponentItem } from "@/data/componentsData";
-import { Search, X, SlidersHorizontal } from "lucide-react";
+import { Search, X, SlidersHorizontal, SearchX } from "lucide-react";
 
 export interface ComponentsExploreClientProps {
   initialComponents: ComponentItem[];
@@ -59,10 +59,10 @@ export default function ComponentsExploreClient({
       <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto w-full">
         {/* Hero Title Section */}
         <div className="mb-6 sm:mb-12 flex flex-col items-start gap-2">
-          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-white select-text">
             Explore Components
           </h1>
-          <p className="text-neutral-400 text-xs sm:text-base max-w-2xl leading-relaxed">
+          <p className="text-neutral-400 text-xs sm:text-base max-w-2xl leading-relaxed select-text">
             High-performance kinetic UI components ready to drop into your React applications.
           </p>
         </div>
@@ -79,6 +79,7 @@ export default function ComponentsExploreClient({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search components..."
+                aria-label="Search components"
                 className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-[#0e101c]/80 backdrop-blur-xl border border-white/[0.12] text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all"
                 style={{
                   boxShadow: "inset 0 1px 1px 0 rgba(255, 255, 255, 0.1)",
@@ -88,7 +89,8 @@ export default function ComponentsExploreClient({
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white p-1 cursor-pointer"
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white p-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 rounded-lg"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -182,12 +184,17 @@ export default function ComponentsExploreClient({
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 px-4 rounded-3xl bg-[#0c0e1a]/40 border border-white/[0.08] text-center">
-                <p className="text-neutral-400 text-base font-medium mb-2">
+              <div className="flex flex-col items-center justify-center py-20 px-6 rounded-3xl bg-[#0c0e1a]/60 backdrop-blur-xl border border-white/[0.1] text-center max-w-md mx-auto w-full shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 mb-4 shadow-[0_0_24px_rgba(37,99,235,0.2)]">
+                  <SearchX className="w-7 h-7" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1.5 select-text">
                   No components found
-                </p>
-                <p className="text-neutral-500 text-xs max-w-sm mb-4">
-                  Try searching with different terms or selecting another category.
+                </h3>
+                <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed mb-6 max-w-xs select-text">
+                  {searchQuery
+                    ? `No components match "${searchQuery}". Try a different search term or reset filters.`
+                    : "No components available in this category currently."}
                 </p>
                 <button
                   type="button"
@@ -195,7 +202,7 @@ export default function ComponentsExploreClient({
                     setSearchQuery("");
                     setActiveCategoryIndex(0);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/[0.08] hover:bg-white/[0.14] text-white transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-[0_4px_16px_rgba(37,99,235,0.35)] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
                 >
                   Reset Filters
                 </button>

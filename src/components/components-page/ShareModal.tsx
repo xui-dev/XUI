@@ -145,8 +145,8 @@ export default function ShareModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] text-neutral-400 hover:text-white transition-all cursor-pointer active:scale-90"
-                aria-label="Close"
+                className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] text-neutral-400 hover:text-white transition-all cursor-pointer active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+                aria-label="Close share dialog"
               >
                 <X className="w-4 h-4" />
               </button>

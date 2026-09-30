@@ -22,7 +22,6 @@ export interface ComponentItem {
   author: string;
   authorHandle: string;
   authorAvatar: string;
-  likes: number;
   views: string;
   dependencies: string[];
   reactCode: string;
