@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import ParticleText from "./ParticleText";
-import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const PHRASES = [
@@ -92,24 +90,6 @@ export default function ParticleShowcaseSection({
           fontFamily="inherit"
           glow={true}
         />
-      </div>
-
-      {/* ── Exploratory Call to Action ── */}
-      <div className="relative z-10 mt-4 sm:mt-8 flex flex-col sm:flex-row items-center gap-4">
-        <Link
-          href="/components"
-          className="relative group overflow-hidden h-11 sm:h-12 px-6 sm:px-7 rounded-2xl
-                     inline-flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold tracking-tight text-white
-                     bg-gradient-to-r from-blue-600 to-indigo-600
-                     border border-blue-400/30
-                     shadow-[0_0_30px_rgba(37,99,235,0.5),inset_0_1px_1px_rgba(255,255,255,0.3)]
-                     hover:shadow-[0_0_45px_rgba(37,99,235,0.7),inset_0_1px_1px_rgba(255,255,255,0.4)]
-                     hover:scale-[1.02] active:scale-[0.98]
-                     transition-all duration-200 cursor-pointer"
-        >
-          <span>Explore Component Library</span>
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </Link>
       </div>
     </section>
   );
