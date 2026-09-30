@@ -33,14 +33,7 @@ export default function ComponentCodeView({ component }: ComponentCodeViewProps)
       await downloadComponentZip({
         title: component.title,
         slug: component.slug,
-        reactCode: component.reactCode,
-        typescriptCode: component.typescriptCode,
-        javascriptCode: component.javascriptCode,
-        htmlCode: component.htmlCode,
-        cssCode: component.cssCode,
-        jsCode: component.jsCode,
-        vueCode: component.vueCode,
-        svelteCode: component.svelteCode,
+        typescriptCode: component.typescriptCode || component.reactCode,
         dependencies: component.dependencies,
       });
     } catch (err) {
@@ -56,14 +49,7 @@ export default function ComponentCodeView({ component }: ComponentCodeViewProps)
       downloadComponentMarkdown({
         title: component.title,
         slug: component.slug,
-        reactCode: component.reactCode,
-        typescriptCode: component.typescriptCode,
-        javascriptCode: component.javascriptCode,
-        htmlCode: component.htmlCode,
-        cssCode: component.cssCode,
-        jsCode: component.jsCode,
-        vueCode: component.vueCode,
-        svelteCode: component.svelteCode,
+        typescriptCode: component.typescriptCode || component.reactCode,
         dependencies: component.dependencies,
       });
     } catch (err) {
@@ -112,7 +98,7 @@ export default function ComponentCodeView({ component }: ComponentCodeViewProps)
             <div className="flex flex-col">
               <span>ZIP</span>
               <span className="text-[10px] text-neutral-400 font-normal">
-                {isDownloadingZip ? "Downloading..." : "TS & React (.zip)"}
+                {isDownloadingZip ? "Downloading..." : "TypeScript + Tailwind (.zip)"}
               </span>
             </div>
           </button>
@@ -142,25 +128,15 @@ export default function ComponentCodeView({ component }: ComponentCodeViewProps)
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
-      {/* 1. React (JSX) Card — Download button lives here */}
-      <XUICodeBlock
-        code={component.javascriptCode || component.reactCode}
-        language="jsx"
-        filename={`${capitalize(component.slug)}.jsx`}
-        frameworkBadge="React"
-        badgeColor="text-cyan-400 bg-cyan-500/15 border-cyan-500/30"
-        accentBar="bg-cyan-400"
-        extraActions={downloadDropdown}
-      />
-
-      {/* 2. TypeScript Card */}
+      {/* Single TypeScript (TSX = TypeScript + Tailwind) code block */}
       <XUICodeBlock
         code={component.typescriptCode || component.reactCode}
         language="tsx"
         filename={`${capitalize(component.slug)}.tsx`}
-        frameworkBadge="TypeScript"
+        frameworkBadge="TypeScript + Tailwind"
         badgeColor="text-blue-400 bg-blue-500/15 border-blue-500/30"
         accentBar="bg-blue-500"
+        extraActions={downloadDropdown}
       />
     </div>
   );

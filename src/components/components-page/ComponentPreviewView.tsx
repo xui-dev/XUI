@@ -178,7 +178,11 @@ export default function ComponentPreviewView({
               transition: "transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease",
             }}
           >
-            <ComponentLivePreview id={component.id} interactive={true} />
+            <ComponentLivePreview
+              id={component.id}
+              interactive={true}
+              code={component.reactCode || component.typescriptCode || component.javascriptCode || component.htmlCode}
+            />
           </div>
         </div>
       </div>

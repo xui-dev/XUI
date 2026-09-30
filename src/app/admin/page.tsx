@@ -64,14 +64,12 @@ export default function AdminPage() {
 
   // New component modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [activeCodeTab, setActiveCodeTab] = useState<"typescript" | "react">("typescript");
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("cards");
   const [dependencies, setDependencies] = useState("lucide-react");
-  const [code, setCode] = useState(DEFAULT_SAMPLE_CODE); // TypeScript (index.tsx)
-  const [jsCode, setJsCode] = useState(""); // React JavaScript (index.jsx)
+  const [code, setCode] = useState(DEFAULT_SAMPLE_CODE);
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishWarning, setPublishWarning] = useState<string | null>(null);
@@ -126,20 +124,6 @@ export default function AdminPage() {
     }
   };
 
-  // Auto-generate React JS from TypeScript by stripping types
-  const handleAutoGenerateJs = () => {
-    const stripped = code
-      .replace(/(?:export\s+)?(?:interface|type)\s+[A-Za-z0-9_]+(?:\s*<[^>]+>)?(?:\s*=\s*|\s*)\{[\s\S]*?\}\s*;?/g, "")
-      .replace(/(use[A-Za-z0-9_]+)\s*<[^>]+>\s*\(/g, "$1(")
-      .replace(/\)\s*:\s*[A-Za-z0-9_<>[\]|&\s]+(?=\s*\{|\s*=>)/g, ")")
-      .replace(/(\(\s*(?:props|\{[^}]*\})\s*)\s*:\s*[A-Za-z0-9_<>[\]|&\s]+(?=\s*\))/g, "$1")
-      .replace(/\s+as\s+[A-Za-z0-9_<>[\]|&]+/g, "")
-      .replace(/\n\s*\n\s*\n/g, "\n\n")
-      .trim();
-    setJsCode(stripped);
-    setActiveCodeTab("react");
-  };
-
   // 3. Handle Publish New Component
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +149,6 @@ export default function AdminPage() {
             .map((s) => s.trim())
             .filter(Boolean),
           code,
-          jsCode: jsCode || undefined,
         }),
       });
 
@@ -190,7 +173,6 @@ export default function AdminPage() {
           setId("");
           setDescription("");
           setCode(DEFAULT_SAMPLE_CODE);
-          setJsCode("");
           setPublishSuccess(null);
           setPublishWarning(null);
           fetchRegistryItems();
@@ -673,82 +655,21 @@ export default function AdminPage() {
               </div>
 
               <div>
-                {/* Code Tabs Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#07080e] border border-white/[0.1] w-fit">
-                    <button
-                      type="button"
-                      onClick={() => setActiveCodeTab("typescript")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                        activeCodeTab === "typescript"
-                          ? "bg-blue-600 text-white shadow-sm"
-                          : "text-neutral-400 hover:text-white"
-                      }`}
-                    >
-                      <span className="w-3.5 h-3.5 rounded bg-[#3178C6] text-white text-[8px] font-black flex items-center justify-center shrink-0">
-                        TS
-                      </span>
-                      <span>TypeScript (`index.tsx`) *</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveCodeTab("react")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                        activeCodeTab === "react"
-                          ? "bg-cyan-600 text-white shadow-sm"
-                          : "text-neutral-400 hover:text-white"
-                      }`}
-                    >
-                      <svg className="w-3.5 h-3.5 text-[#00D8FF] shrink-0" viewBox="0 0 115.3 100" fill="currentColor">
-                        <ellipse cx="57.65" cy="50" rx="16.7" ry="16.7" fill="#00D8FF" />
-                        <path
-                          d="M57.65,0 C42.75,0 30.7,22.4 30.7,50 C30.7,77.6 42.75,100 57.65,100 C72.55,100 84.6,77.6 84.6,50 C84.6,22.4 72.55,0 57.65,0 Z"
-                          fill="none"
-                          stroke="#00D8FF"
-                          strokeWidth="6"
-                          transform="rotate(30 57.65 50)"
-                        />
-                      </svg>
-                      <span>React (`index.jsx`)</span>
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleAutoGenerateJs}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-all cursor-pointer self-start sm:self-auto"
-                    title="Automatically strip types to generate React JSX version"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Generate React JS from TS</span>
-                  </button>
-                </div>
-
-                {/* Editor 1: TypeScript (TSX) */}
-                {activeCodeTab === "typescript" && (
-                  <textarea
-                    rows={11}
-                    required
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Write or paste your React + TypeScript component code here..."
-                    className="w-full p-4 rounded-xl bg-[#07080e] border border-blue-500/30 font-mono text-xs text-blue-200 focus:outline-none focus:border-blue-500 leading-relaxed resize-y"
-                    spellCheck={false}
-                  />
-                )}
-
-                {/* Editor 2: React (JSX) */}
-                {activeCodeTab === "react" && (
-                  <textarea
-                    rows={11}
-                    value={jsCode}
-                    onChange={(e) => setJsCode(e.target.value)}
-                    placeholder="Enter React JSX (JavaScript) code or click 'Generate React JS from TS'..."
-                    className="w-full p-4 rounded-xl bg-[#07080e] border border-cyan-500/30 font-mono text-xs text-cyan-200 focus:outline-none focus:border-cyan-500 leading-relaxed resize-y"
-                    spellCheck={false}
-                  />
-                )}
+                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3.5 h-3.5 rounded bg-[#3178C6] text-white text-[8px] font-black flex items-center justify-center shrink-0">TS</span>
+                    Component Code (TypeScript + Tailwind) *
+                  </span>
+                </label>
+                <textarea
+                  rows={14}
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Write or paste your React + TypeScript + Tailwind component code here..."
+                  className="w-full p-4 rounded-xl bg-[#07080e] border border-blue-500/30 font-mono text-xs text-blue-200 focus:outline-none focus:border-blue-500 leading-relaxed resize-y"
+                  spellCheck={false}
+                />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">

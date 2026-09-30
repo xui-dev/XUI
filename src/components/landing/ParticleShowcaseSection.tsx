@@ -41,7 +41,7 @@ export default function ParticleShowcaseSection({
     <section
       dir={dir}
       style={{ opacity }}
-      className="absolute inset-0 z-30 flex flex-col items-center justify-center px-4 sm:px-8 pointer-events-auto transition-opacity duration-300 select-none overflow-hidden"
+      className="absolute inset-0 z-30 flex flex-col items-center justify-center px-4 sm:px-8 pointer-events-auto transition-opacity duration-300 select-none"
     >
       {/* ── Ambient Radial Royal Blue Nebula ── */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

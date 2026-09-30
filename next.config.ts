@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      "@registry": path.resolve(process.cwd(), "registry"),
+    },
+  },
+  webpack(config) {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@registry": path.resolve(process.cwd(), "registry"),
+    };
+    return config;
+  },
+
   images: {
     remotePatterns: [
       {

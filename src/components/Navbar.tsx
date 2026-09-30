@@ -10,8 +10,6 @@ import UserMenu from "@/components/auth/UserMenu";
 import {
   Menu,
   X,
-  Layers,
-  LayoutTemplate,
   Sparkles,
   Settings,
   User as UserIcon,
@@ -202,21 +200,34 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Hamburger Menu Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl text-neutral-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
-            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation-drawer"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5 text-blue-400" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+          {/* Right Actions: Settings + Menu Toggle */}
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center p-2 rounded-xl text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.09] border border-white/[0.08] transition-all duration-200 cursor-pointer active:scale-95 group"
+              title="Settings"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 text-neutral-400 group-hover:text-white group-hover:rotate-45 transition-transform duration-300" />
+            </Link>
+
+            {/* Hamburger Menu Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-neutral-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5 text-blue-400" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* ── Expandable Mobile Frosted Sidebar Drawer ── */}
@@ -338,77 +349,40 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                     openAuthModal("signin");
                   }}
-                  className="w-full py-3 px-4 rounded-2xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_8px_20px_rgba(37,99,235,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="relative group overflow-hidden w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-white bg-white/[0.10] hover:bg-white/[0.16] active:bg-white/[0.22] backdrop-blur-2xl backdrop-saturate-200 border border-white/20 hover:border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_8px_24px_rgba(0,0,0,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>{t.signIn || "Sign In / Create Account"}</span>
+                  <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <LogIn className="w-4 h-4 text-neutral-200" />
+                  <span className="relative z-10">{t.signIn || "Sign In / Create Account"}</span>
                 </button>
               )}
 
               {/* 2. Navigation Links */}
-              <div className="flex flex-col gap-1 pt-1">
+              <nav aria-label="Mobile navigation" className="flex flex-col gap-0.5 pt-1">
                 <Link
                   href="/components"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                  className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200"
                 >
-                  <div className="flex items-center gap-3">
-                    <Layers className="w-4 h-4 text-blue-400" />
-                    <span>{t.links.components}</span>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                    Explore
-                  </span>
+                  {t?.links?.components || "Components"}
                 </Link>
 
                 <Link
                   href="/#3d-websites"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                  className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200"
                 >
-                  <LayoutTemplate className="w-4 h-4 text-indigo-400" />
-                  <span>3D web templates</span>
+                  3D web templates
                 </Link>
 
                 <Link
                   href="/docs"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-colors"
+                  className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-white/[0.08] active:bg-white/[0.12] transition-all duration-200"
                 >
-                  <BookOpen className="w-4 h-4 text-emerald-400" />
-                  <span>Docs</span>
+                  Docs
                 </Link>
-              </div>
-
-              {/* 3. GitHub Link */}
-              <div className="w-full h-px bg-white/[0.08] my-1" />
-
-              <a
-                href="https://github.com/xui-dev/XUI"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-mono text-neutral-400 hover:text-white hover:bg-white/[0.06] transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-neutral-300"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                    />
-                  </svg>
-                  <span>GitHub Repository</span>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.06] text-neutral-300">
-                  ★ Star
-                </span>
-              </a>
+              </nav>
             </motion.div>
           )}
         </AnimatePresence>
