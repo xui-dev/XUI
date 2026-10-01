@@ -64,6 +64,7 @@ export default function AdminPage() {
 
   // New component modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<"code" | "preview">("code");
   const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -74,6 +75,45 @@ export default function AdminPage() {
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishWarning, setPublishWarning] = useState<string | null>(null);
   const [publishSuccess, setPublishSuccess] = useState<string | null>(null);
+
+  // Helper to extract npm dependencies from code
+  const extractDeps = (sourceCode: string): string[] => {
+    if (!sourceCode) return [];
+    const importRegex = /(?:import\s+(?:[\w\s{},*]+from\s+)?['"]|export\s+(?:[\w\s{},*]+from\s+)?['"])([^'"]+)['"]/g;
+    const deps = new Set<string>();
+    let m;
+    while ((m = importRegex.exec(sourceCode)) !== null) {
+      const spec = m[1].trim();
+      if (
+        !spec.startsWith(".") &&
+        !spec.startsWith("/") &&
+        !spec.startsWith("@/") &&
+        !spec.startsWith("http:") &&
+        !spec.startsWith("https:") &&
+        spec !== "react" &&
+        !spec.startsWith("react/") &&
+        spec !== "react-dom" &&
+        !spec.startsWith("react-dom/")
+      ) {
+        let pkg = spec;
+        if (spec.startsWith("@")) {
+          pkg = spec.split("/").slice(0, 2).join("/");
+        } else {
+          pkg = spec.split("/")[0];
+        }
+        if (pkg) deps.add(pkg);
+      }
+    }
+    return Array.from(deps);
+  };
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    const detected = extractDeps(newCode);
+    if (detected.length > 0) {
+      setDependencies(detected.join(", "));
+    }
+  };
 
   // Delete confirmation state
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -119,8 +159,18 @@ export default function AdminPage() {
   // Handle title change and slug generation
   const handleTitleChange = (val: string) => {
     setTitle(val);
-    if (!id || id === title.toLowerCase().replace(/[^a-z0-9]/g, "-")) {
-      setId(val.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-"));
+    const cleanSlug = val
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const prevExpected = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    if (!id || id === prevExpected) {
+      setId(cleanSlug);
     }
   };
 
@@ -299,7 +349,7 @@ export default function AdminPage() {
         <div className="absolute top-60 right-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[160px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
+      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full flex flex-col gap-8">
         {/* ── Top Dashboard Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div className="flex flex-col items-start gap-2">
@@ -410,14 +460,14 @@ export default function AdminPage() {
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
               </div>
             ) : filteredItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
                 {filteredItems.map((comp) => (
                   <div
                     key={comp.name}
                     className="group relative flex flex-col rounded-3xl bg-[#0d0f1a]/85 backdrop-blur-2xl border border-white/[0.12] overflow-hidden transition-all duration-300 hover:border-blue-500/50 shadow-xl"
                   >
                     {/* Live Preview Area */}
-                    <div className="relative h-44 w-full flex items-center justify-center p-3 bg-black/40 overflow-hidden border-b border-white/[0.08]">
+                    <div className="relative h-64 sm:h-72 lg:h-80 w-full flex items-center justify-center bg-black/40 overflow-hidden border-b border-white/[0.08]">
                       <ComponentLivePreview id={comp.name} interactive={false} />
                     </div>
 
@@ -655,21 +705,73 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3.5 h-3.5 rounded bg-[#3178C6] text-white text-[8px] font-black flex items-center justify-center shrink-0">TS</span>
-                    Component Code (TypeScript + Tailwind) *
-                  </span>
-                </label>
-                <textarea
-                  rows={14}
-                  required
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Write or paste your React + TypeScript + Tailwind component code here..."
-                  className="w-full p-4 rounded-xl bg-[#07080e] border border-blue-500/30 font-mono text-xs text-blue-200 focus:outline-none focus:border-blue-500 leading-relaxed resize-y"
-                  spellCheck={false}
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-neutral-300">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3.5 h-3.5 rounded bg-[#3178C6] text-white text-[8px] font-black flex items-center justify-center shrink-0">TS</span>
+                      Component Code *
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+                    <button
+                      type="button"
+                      onClick={() => setModalTab("code")}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                        modalTab === "code"
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      Code Editor
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalTab("preview")}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                        modalTab === "preview"
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      Live Preview
+                    </button>
+                  </div>
+                </div>
+
+                {modalTab === "code" ? (
+                  <>
+                    <textarea
+                      rows={12}
+                      required
+                      value={code}
+                      onChange={(e) => handleCodeChange(e.target.value)}
+                      placeholder="Write or paste your React + TypeScript or styled-components component code here..."
+                      className="w-full p-4 rounded-xl bg-[#07080e] border border-blue-500/30 font-mono text-xs text-blue-200 focus:outline-none focus:border-blue-500 leading-relaxed resize-y"
+                      spellCheck={false}
+                    />
+                    {dependencies && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[10px] text-neutral-400">Detected Dependencies:</span>
+                        {dependencies.split(",").map((d) => d.trim()).filter(Boolean).map((dep) => (
+                          <span
+                            key={dep}
+                            className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/25 text-[10px] text-blue-300 font-mono"
+                          >
+                            {dep}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full min-h-[320px] rounded-xl bg-[#07080e] border border-white/[0.1] p-2 flex items-center justify-center overflow-hidden">
+                    <ComponentLivePreview
+                      id={id || "modal-preview"}
+                      code={code}
+                      interactive={true}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2">

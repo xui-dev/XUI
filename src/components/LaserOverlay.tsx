@@ -28,7 +28,7 @@ export default function LaserOverlay({
           className="absolute inset-0 z-20 pointer-events-none select-none flex items-end sm:items-start justify-center sm:justify-start px-3 sm:px-7 lg:px-10 pb-5 sm:pb-0 pt-0 sm:pt-32"
         >
           {/* ── Left-Flanked on desktop, Centered and Bottom on mobile ── */}
-          <div className="w-full max-w-7xl mx-auto flex items-end sm:items-start justify-center sm:justify-start px-0 sm:px-6 pointer-events-none">
+          <div className="w-full max-w-[1720px] mx-auto flex items-end sm:items-start justify-center sm:justify-start px-0 sm:px-6 pointer-events-none">
             <motion.div
               initial={{
                 opacity: 0,

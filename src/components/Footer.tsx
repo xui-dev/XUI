@@ -59,7 +59,7 @@ export default function Footer() {
         }}
       />
 
-      <div className="relative mx-auto max-w-7xl px-6 sm:px-10 lg:px-14">
+      <div className="relative mx-auto max-w-[1720px] px-6 sm:px-10 xl:px-12">
         {/* ── Main Grid ─────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 pt-16 pb-12">
 

@@ -33,7 +33,7 @@ export default function SettingsPage() {
         <div className="absolute top-60 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[160px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full flex flex-col gap-8 justify-center">
+      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-6xl xl:max-w-7xl mx-auto w-full flex flex-col gap-8">
         {/* Navigation / Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { transform } from "sucrase";
 import registryComponentMap from "@/lib/registryComponentMap";
 
 export interface ComponentLivePreviewProps {
@@ -8,12 +9,16 @@ export interface ComponentLivePreviewProps {
   code?: string;
   interactive?: boolean;
   scale?: number;
+  autoScale?: boolean;
+  className?: string;
 }
 
 export default function ComponentLivePreview({
   id,
   code: initialCode,
   interactive = true,
+  autoScale = true,
+  className,
 }: ComponentLivePreviewProps) {
   // 1. Check if a statically registered component exists
   const StaticComponent = registryComponentMap[id];
@@ -58,9 +63,13 @@ export default function ComponentLivePreview({
     };
   }, [id, StaticComponent, initialCode]);
 
-  // If statically registered component is present, render directly
+  // If statically registered component is present, render with responsive auto-scale
   if (StaticComponent) {
-    return <StaticComponent />;
+    return (
+      <ResponsiveNativeScaler autoScale={autoScale}>
+        <StaticComponent />
+      </ResponsiveNativeScaler>
+    );
   }
 
   if (loading) {
@@ -84,18 +93,141 @@ export default function ComponentLivePreview({
     <LiveIframeSandbox
       code={fetchedCode}
       interactive={interactive}
+      autoScale={autoScale}
+      className={className}
     />
   );
 }
 
-// ── Smart Sandboxed Live Iframe ──
+// ── Native React Component Auto-Fit Responsive Scaler ──
+function ResponsiveNativeScaler({
+  children,
+  autoScale = true,
+}: {
+  children: React.ReactNode;
+  autoScale?: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scalerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    if (!autoScale) return;
+    const container = containerRef.current;
+    const scaler = scalerRef.current;
+    if (!container || !scaler) return;
+
+    function recalculate() {
+      if (!container || !scaler || !scaler.firstElementChild) return;
+      const availW = container.clientWidth;
+      const availH = container.clientHeight;
+      if (availW <= 0 || availH <= 0) return;
+
+      const child = scaler.firstElementChild as HTMLElement;
+      const rect = child.getBoundingClientRect();
+      const currentScale = scale || 1;
+      const naturalW = rect.width / currentScale;
+      const naturalH = rect.height / currentScale;
+
+      if (naturalW <= 0 || naturalH <= 0) return;
+
+      const padding = 28;
+      const targetW = Math.max(availW - padding, 20);
+      const targetH = Math.max(availH - padding, 20);
+
+      const scaleX = targetW / naturalW;
+      const scaleY = targetH / naturalH;
+
+      let newScale = Math.min(scaleX, scaleY);
+      if (newScale >= 0.95) {
+        newScale = 1;
+      } else {
+        newScale = Math.max(Math.floor(newScale * 100) / 100, 0.2);
+      }
+
+      setScale(newScale);
+    }
+
+    const ro = new ResizeObserver(() => recalculate());
+    ro.observe(container);
+
+    requestAnimationFrame(recalculate);
+    const t1 = setTimeout(recalculate, 80);
+    const t2 = setTimeout(recalculate, 300);
+
+    return () => {
+      ro.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [autoScale, scale]);
+
+  if (!autoScale) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full h-full flex items-center justify-center overflow-hidden relative"
+    >
+      <div
+        ref={scalerRef}
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: "center center",
+          transition: "transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+        className="flex items-center justify-center"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Ultra-Fast Zero-CDN Sandboxed Runner (Sucrase Engine) ──
+
+function rewriteImports(jsCode: string): string {
+  return jsCode.replace(
+    /(import\s+(?:[\w\s{},*]+from\s+)?['"]|export\s+(?:[\w\s{},*]+from\s+)?['"]|import\s*\(\s*['"])([^'"]+)(['"]\s*\)?)/g,
+    function (match, prefix, specifier, suffix) {
+      if (
+        specifier.startsWith("http://") ||
+        specifier.startsWith("https://") ||
+        specifier.startsWith("./") ||
+        specifier.startsWith("../") ||
+        specifier.startsWith("/") ||
+        specifier.startsWith("data:")
+      ) {
+        return match;
+      }
+      if (specifier === "react") return `${prefix}https://esm.sh/react@18.3.1${suffix}`;
+      if (specifier === "react/jsx-runtime") return `${prefix}https://esm.sh/react@18.3.1/jsx-runtime${suffix}`;
+      if (specifier === "react/jsx-dev-runtime") return `${prefix}https://esm.sh/react@18.3.1/jsx-dev-runtime${suffix}`;
+      if (specifier.startsWith("react/")) return `${prefix}https://esm.sh/react@18.3.1/${specifier.slice(6)}${suffix}`;
+      if (specifier === "react-dom") return `${prefix}https://esm.sh/react-dom@18.3.1${suffix}`;
+      if (specifier === "react-dom/client") return `${prefix}https://esm.sh/react-dom@18.3.1/client${suffix}`;
+      if (specifier.startsWith("react-dom/")) return `${prefix}https://esm.sh/react-dom@18.3.1/${specifier.slice(10)}${suffix}`;
+      if (specifier === "styled-components") return `${prefix}https://esm.sh/styled-components@6.1.13?deps=react@18.3.1,react-dom@18.3.1${suffix}`;
+      if (specifier === "lucide-react") return `${prefix}https://esm.sh/lucide-react@0.475.0?deps=react@18.3.1${suffix}`;
+      if (specifier === "framer-motion" || specifier.startsWith("framer-motion/")) return `${prefix}https://esm.sh/${specifier}?deps=react@18.3.1,react-dom@18.3.1${suffix}`;
+      if (specifier === "motion/react" || specifier === "motion" || specifier.startsWith("motion/")) return `${prefix}https://esm.sh/${specifier}?deps=react@18.3.1,react-dom@18.3.1${suffix}`;
+      return `${prefix}https://esm.sh/${specifier}?deps=react@18.3.1,react-dom@18.3.1${suffix}`;
+    }
+  );
+}
 
 function LiveIframeSandbox({
   code,
   interactive = true,
+  autoScale = true,
+  className,
 }: {
   code: string;
   interactive?: boolean;
+  autoScale?: boolean;
+  className?: string;
 }) {
   const isHtmlOnly = useMemo(() => {
     const trimmed = code.trim();
@@ -103,11 +235,101 @@ function LiveIframeSandbox({
       !trimmed.includes("import ") &&
       !trimmed.includes("export default") &&
       !trimmed.includes("function") &&
+      !trimmed.includes("const ") &&
+      !trimmed.includes("let ") &&
       trimmed.startsWith("<")
     );
   }, [code]);
 
+  const compiledResult = useMemo(() => {
+    if (isHtmlOnly) {
+      return { js: "", error: null };
+    }
+
+    try {
+      let prepSource = code;
+      const hasExport = /export\s+default|export\s+(?:function|const|let|var|class)/.test(prepSource);
+      if (!hasExport) {
+        const compMatch = prepSource.match(/(?:function|const|let|var|class)\s+([A-Z]\w*)/);
+        if (compMatch && compMatch[1]) {
+          prepSource += `\nexport default ${compMatch[1]};`;
+        }
+      }
+
+      // Fast in-browser transformation via Sucrase (2ms, 0 external downloads)
+      const transpiled = transform(prepSource, {
+        transforms: ["jsx", "typescript"],
+        jsxRuntime: "classic",
+        production: true,
+      }).code;
+
+      const resolved = rewriteImports(transpiled);
+      return { js: resolved, error: null };
+    } catch (err: any) {
+      return { js: "", error: err?.message || String(err) };
+    }
+  }, [code, isHtmlOnly]);
+
   const srcDoc = useMemo(() => {
+    const autoFitScript = `
+      function setupAutoFit(container, target) {
+        let isUpdating = false;
+
+        function recalculate() {
+          if (isUpdating) return;
+          if (!container || !target) return;
+          const child = target.firstElementChild;
+          if (!child) return;
+
+          const availW = container.clientWidth || container.offsetWidth;
+          const availH = container.clientHeight || container.offsetHeight;
+          if (availW <= 0 || availH <= 0) return;
+
+          const rect = child.getBoundingClientRect();
+          const currentScale = target.__currentScale || 1;
+          const naturalW = rect.width / currentScale;
+          const naturalH = rect.height / currentScale;
+
+          if (naturalW <= 0 || naturalH <= 0) return;
+
+          const padding = 28;
+          const targetW = Math.max(availW - padding, 20);
+          const targetH = Math.max(availH - padding, 20);
+
+          const scaleX = targetW / naturalW;
+          const scaleY = targetH / naturalH;
+
+          let scale = Math.min(scaleX, scaleY);
+          if (scale >= 0.95) {
+            scale = 1;
+          } else {
+            scale = Math.floor(scale * 100) / 100;
+            scale = Math.max(scale, 0.2);
+          }
+
+          if (Math.abs(scale - currentScale) > 0.01) {
+            isUpdating = true;
+            target.__currentScale = scale;
+            target.style.transform = "scale(" + scale + ")";
+            target.style.transformOrigin = "center center";
+            isUpdating = false;
+          }
+        }
+
+        if (window.ResizeObserver) {
+          const ro = new ResizeObserver(() => {
+            recalculate();
+          });
+          ro.observe(container);
+        }
+
+        requestAnimationFrame(recalculate);
+        setTimeout(recalculate, 60);
+        setTimeout(recalculate, 200);
+        setTimeout(recalculate, 600);
+      }
+    `;
+
     if (isHtmlOnly) {
       return `<!DOCTYPE html>
 <html>
@@ -116,6 +338,7 @@ function LiveIframeSandbox({
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
@@ -129,10 +352,67 @@ function LiveIframeSandbox({
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
     }
+    #root {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    #preview-scaler {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+    ::-webkit-scrollbar { display: none; }
   </style>
 </head>
 <body>
-  ${code}
+  <div id="root">
+    <div id="preview-scaler">
+      ${code}
+    </div>
+  </div>
+  <script>
+    ${autoFitScript}
+    ${autoScale ? `setupAutoFit(document.getElementById('root'), document.getElementById('preview-scaler'));` : ""}
+  </script>
+</body>
+</html>`;
+    }
+
+    if (compiledResult.error) {
+      return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      margin: 0;
+      padding: 1rem;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div style="max-width: 440px; width: 92%; padding: 18px 20px; border-radius: 16px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5;">
+    <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: #f87171; margin-bottom: 8px;">
+      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
+      <span>Compilation Notice</span>
+    </div>
+    <div style="font-size: 11px; color: #e2e8f0; line-height: 1.5; font-family: monospace; background: rgba(0,0,0,0.45); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); word-break: break-word;">
+      ${compiledResult.error.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+    </div>
+  </div>
 </body>
 </html>`;
     }
@@ -156,107 +436,112 @@ function LiveIframeSandbox({
     }
   </script>
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      min-height: 100%;
+      height: 100%;
       background: transparent;
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
     }
     #root {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      min-height: 100%;
-      padding: 1.5rem;
-      box-sizing: border-box;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    #preview-scaler {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
     }
     ::-webkit-scrollbar { display: none; }
   </style>
-  <script type="importmap">
-  {
-    "imports": {
-      "react": "https://esm.sh/react@18.3.1",
-      "react/": "https://esm.sh/react@18.3.1/",
-      "react-dom": "https://esm.sh/react-dom@18.3.1",
-      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-      "lucide-react": "https://esm.sh/lucide-react@0.475.0",
-      "motion/react": "https://esm.sh/motion@12.4.7/react",
-      "framer-motion": "https://esm.sh/framer-motion@12.4.7",
-      "clsx": "https://esm.sh/clsx",
-      "tailwind-merge": "https://esm.sh/tailwind-merge"
-    }
-  }
-  </script>
-  <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
 </head>
 <body>
-  <div id="root">
-    <div style="font-size:12px;color:#737373;display:flex;align-items:center;gap:6px;">
-      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:pulse 1s infinite;"></span>
-      Initializing canvas…
-    </div>
-  </div>
-  <script type="text/javascript">
-    window.addEventListener('error', function(e) {
-      console.warn('Canvas caught runtime notice:', e.message);
-    });
-  </script>
+  <div id="root"></div>
   <script type="module">
-    import * as React from 'react';
-    import * as ReactDOMClient from 'react-dom/client';
+    import * as React from 'https://esm.sh/react@18.3.1';
+    import * as ReactDOMClient from 'https://esm.sh/react-dom@18.3.1/client';
 
-    try {
-      const source = ${JSON.stringify(code)};
+    // Global React hook exposure for resilient code execution
+    window.React = React;
+    window.useState = React.useState;
+    window.useEffect = React.useEffect;
+    window.useRef = React.useRef;
+    window.useMemo = React.useMemo;
+    window.useCallback = React.useCallback;
+    window.useId = React.useId;
 
-      // Ensure Babel is loaded
-      if (typeof Babel === 'undefined') {
-        throw new Error('Preview transpiler loading...');
-      }
+    ${autoFitScript}
 
-      // Transpile JSX/TSX
-      const transformed = Babel.transform(source, {
-        presets: [
-          ['react', { runtime: 'automatic' }],
-          ['typescript', { allExtensions: true, isTSX: true }]
-        ],
-        filename: 'preview.tsx',
-      }).code;
-
-      // Create blob module
-      const blob = new Blob([transformed], { type: 'application/javascript' });
-      const moduleUrl = URL.createObjectURL(blob);
-      const mod = await import(moduleUrl);
-      URL.revokeObjectURL(moduleUrl);
-
-      const ComponentToRender = mod.default || Object.values(mod).find(v => typeof v === 'function');
-
+    async function mountComponent() {
       const rootEl = document.getElementById('root');
-      if (ComponentToRender && rootEl) {
-        rootEl.innerHTML = '';
-        const root = ReactDOMClient.createRoot(rootEl);
-        root.render(React.createElement(ComponentToRender));
-      } else {
-        rootEl.innerHTML = '<div style="color:#a3a3a3;font-size:12px;">Component rendered without visual export</div>';
-      }
-    } catch (err) {
-      console.warn('Preview fallback notice:', err);
-      const rootEl = document.getElementById('root');
-      if (rootEl) {
-        rootEl.innerHTML = '<div style="color:#94a3b8;font-size:12px;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08);text-align:center;">Interactive Preview Ready</div>';
+      try {
+        const sourceCode = ${JSON.stringify(compiledResult.js)};
+        const blob = new Blob([sourceCode], { type: 'application/javascript' });
+        const moduleUrl = URL.createObjectURL(blob);
+        const mod = await import(moduleUrl);
+        URL.revokeObjectURL(moduleUrl);
+
+        let ComponentToRender = mod.default || Object.values(mod).find(v => typeof v === 'function');
+        if (ComponentToRender && typeof ComponentToRender === 'object' && typeof ComponentToRender.default === 'function') {
+          ComponentToRender = ComponentToRender.default;
+        }
+
+        if (ComponentToRender && rootEl) {
+          rootEl.innerHTML = '<div id="preview-scaler"></div>';
+          const scalerEl = document.getElementById('preview-scaler');
+          const root = ReactDOMClient.createRoot(scalerEl);
+          root.render(React.createElement(ComponentToRender));
+
+          ${autoScale ? `setupAutoFit(rootEl, scalerEl);` : ""}
+        } else if (rootEl) {
+          rootEl.innerHTML = '<div style="color:#a3a3a3;font-size:12px;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;">Component rendered without visual export</div>';
+        }
+      } catch (err) {
+        console.error('Mount error:', err);
+        if (rootEl) {
+          const errMsg = err && err.message ? err.message : String(err);
+          rootEl.innerHTML = \`
+            <div style="max-width: 440px; width: 92%; padding: 18px 20px; border-radius: 16px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: #f87171;">
+                  <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
+                  <span>Render Error</span>
+                </div>
+                <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">
+                  Retry
+                </button>
+              </div>
+              <div style="font-size: 11px; color: #e2e8f0; line-height: 1.5; font-family: monospace; background: rgba(0,0,0,0.45); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); word-break: break-word;">
+                \${errMsg.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+              </div>
+            </div>
+          \`;
+        }
       }
     }
+
+    mountComponent();
   </script>
 </body>
 </html>`;
-  }, [code, isHtmlOnly]);
+  }, [code, isHtmlOnly, compiledResult, autoScale]);
 
   return (
     <iframe
@@ -264,11 +549,12 @@ function LiveIframeSandbox({
       title="Component Preview"
       sandbox="allow-scripts allow-same-origin"
       loading="lazy"
-      className={`w-full min-h-[320px] sm:min-h-[420px] border-0 bg-transparent transition-opacity duration-300 ${
+      className={`w-full h-full min-h-[260px] sm:min-h-[300px] border-0 bg-transparent transition-opacity duration-300 ${
         interactive ? "pointer-events-auto" : "pointer-events-none select-none"
-      }`}
+      } ${className || ""}`}
       style={{
         width: "100%",
+        height: "100%",
         display: "block",
       }}
     />

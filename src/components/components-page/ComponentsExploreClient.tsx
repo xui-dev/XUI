@@ -28,7 +28,14 @@ export default function ComponentsExploreClient({
   const filteredComponents = useMemo(() => {
     return initialComponents.filter((comp) => {
       const matchesCategory =
-        selectedCategory.id === "all" || comp.category === selectedCategory.id;
+        selectedCategory.id === "all" ||
+        comp.category === selectedCategory.id ||
+        (selectedCategory.id === "button" &&
+          (comp.category === "buttons" ||
+            (comp.category as string) === "footer" ||
+            comp.categoryLabel?.toLowerCase() === "button" ||
+            comp.categoryLabel?.toLowerCase() === "buttons" ||
+            comp.categoryLabel?.toLowerCase() === "footer"));
 
       const query = searchQuery.toLowerCase().trim();
       const matchesSearch =
@@ -56,7 +63,7 @@ export default function ComponentsExploreClient({
       </div>
 
       {/* ── Main Layout Container ── */}
-      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto w-full">
+      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full">
         {/* Hero Title Section */}
         <div className="mb-6 sm:mb-12 flex flex-col items-start gap-2">
           <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-white select-text">
@@ -68,9 +75,9 @@ export default function ComponentsExploreClient({
         </div>
 
         {/* ── Two Column Architecture (Sidebar + Grid) ── */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           {/* ── Left Sidebar: Search + LineSidebar on desktop / Chips on mobile ── */}
-          <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-4 lg:gap-6 lg:sticky lg:top-28">
+          <aside className="w-full lg:w-60 xl:w-64 shrink-0 flex flex-col gap-4 lg:gap-6 lg:sticky lg:top-28">
             {/* Search Box */}
             <div className="relative w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
@@ -105,7 +112,15 @@ export default function ComponentsExploreClient({
                 const count =
                   cat.id === "all"
                     ? initialComponents.length
-                    : initialComponents.filter((c) => c.category === cat.id).length;
+                    : initialComponents.filter((c) =>
+                        c.category === cat.id ||
+                        (cat.id === "button" &&
+                          (c.category === "buttons" ||
+                            (c.category as string) === "footer" ||
+                            c.categoryLabel?.toLowerCase() === "button" ||
+                            c.categoryLabel?.toLowerCase() === "buttons" ||
+                            c.categoryLabel?.toLowerCase() === "footer"))
+                      ).length;
 
                 return (
                   <button
@@ -178,7 +193,7 @@ export default function ComponentsExploreClient({
 
             {/* Grid Container */}
             {filteredComponents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
                 {filteredComponents.map((comp) => (
                   <ComponentCard key={comp.id} component={comp} />
                 ))}

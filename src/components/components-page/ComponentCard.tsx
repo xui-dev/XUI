@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Eye, ArrowUpRight, Bookmark, Share2, BadgeCheck } from "lucide-react";
 import type { ComponentItem } from "@/data/componentsData";
@@ -25,6 +25,33 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);
 
+  // High-performance Viewport Virtualization: Only mount iframe when scrolled into view
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Once loaded, keep it active
+        }
+      },
+      { rootMargin: "250px" } // Pre-load 250px before entering viewport
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -43,10 +70,24 @@ export default function ComponentCard({ component, locale = "en" }: ComponentCar
           "0 20px 50px -15px rgba(0, 0, 0, 0.85), inset 0 1px 1px 0 rgba(255, 255, 255, 0.16)",
       }}
     >
-      {/* ── 1. Interactive Preview Area ── */}
-      <div className="relative h-48 sm:h-56 w-full flex items-center justify-center p-3 sm:p-4 bg-black/40 overflow-hidden border-b border-white/[0.08]">
-        <div className="flex items-center justify-center w-full h-full">
-          <ComponentLivePreview id={component.id} interactive={true} />
+      {/* ── 1. Interactive Preview Area with Viewport Lazy-Mount ── */}
+      <div
+        ref={cardRef}
+        className="relative h-72 sm:h-80 lg:h-[340px] xl:h-[360px] w-full flex items-center justify-center bg-black/40 overflow-hidden border-b border-white/[0.08]"
+      >
+        <div className="relative flex items-center justify-center w-full h-full overflow-hidden">
+          {isVisible ? (
+            <ComponentLivePreview
+              id={component.id}
+              code={component.reactCode || component.typescriptCode || component.javascriptCode || component.htmlCode}
+              interactive={true}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-white/[0.01]">
+              <span className="w-7 h-7 rounded-full border border-blue-500/20 border-t-blue-500 animate-spin" />
+              <span className="text-[10px] text-neutral-500 font-mono tracking-wider">XUI PREVIEW</span>
+            </div>
+          )}
         </div>
       </div>
 

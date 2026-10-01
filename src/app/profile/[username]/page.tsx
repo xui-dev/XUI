@@ -45,8 +45,14 @@ export default async function AuthorProfilePage({ params }: AuthorProfilePagePro
     slug: item.name,
     title: item.title,
     description: item.description || "",
-    category: (item.category as any) || "patterns",
-    categoryLabel: item.categoryLabel || "Component",
+    category:
+      item.category === "footer"
+        ? "button"
+        : (item.category as any) || "patterns",
+    categoryLabel:
+      item.categoryLabel?.toLowerCase() === "footer"
+        ? "Button"
+        : item.categoryLabel || "Component",
     author: item.author || "XUI",
     authorHandle: item.authorHandle || "@xui_dev",
     authorAvatar: item.authorAvatar || "/XUI.png",
@@ -70,7 +76,7 @@ export default async function AuthorProfilePage({ params }: AuthorProfilePagePro
         <div className="absolute top-60 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[160px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full flex flex-col gap-8">
+      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full flex flex-col gap-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between gap-4">
           <Link
@@ -169,7 +175,7 @@ export default async function AuthorProfilePage({ params }: AuthorProfilePagePro
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             {authorComponents.map((comp) => (
               <ComponentCard key={comp.id} component={comp} />
             ))}

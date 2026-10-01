@@ -185,8 +185,17 @@ export async function getRegistryComponent(id: string): Promise<ComponentItem | 
     // Non-blocking fallback
   }
 
-  const category = (meta?.category || "patterns") as ComponentCategory;
-  const categoryLabel = meta?.categoryLabel || "Patterns";
+  let rawCategory = (meta?.category || "patterns") as ComponentCategory;
+  if ((rawCategory as string) === "footer") {
+    rawCategory = "button";
+  }
+  const category = rawCategory;
+
+  let rawCategoryLabel = meta?.categoryLabel || "Patterns";
+  if (rawCategoryLabel.toLowerCase() === "footer") {
+    rawCategoryLabel = "Button";
+  }
+  const categoryLabel = rawCategoryLabel;
 
   return {
     id: cleanId,

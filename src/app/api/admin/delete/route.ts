@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         const repoOwner = "xui-dev";
         const repoName = "XUI-components-";
 
-        // Helper to get sha of file
+        // Helper to get sha of a file
         const getFileSha = async (filePath: string) => {
           const res = await fetch(
             `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`,
@@ -87,52 +87,43 @@ export async function POST(request: Request) {
           return null;
         };
 
-        // Delete index.tsx & meta.json
-        const indexSha = await getFileSha(`components/${cleanId}/index.tsx`);
-        if (indexSha) {
-          const delRes = await fetch(
-            `https://api.github.com/repos/${repoOwner}/${repoName}/contents/components/${cleanId}/index.tsx`,
-            {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${githubToken}`,
-                Accept: "application/vnd.github.v3+json",
-                "User-Agent": "XUI-Admin",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                message: `delete(component): remove ${cleanId}`,
-                sha: indexSha,
-              }),
-            }
-          );
-          if (!delRes.ok) {
-            const errTxt = await delRes.text();
-            throw new Error(`GitHub DELETE index.tsx failed (${delRes.status}): ${errTxt}`);
-          }
-        }
+        // 1. Fetch and delete all files inside components/${cleanId} directory
+        const folderUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/components/${cleanId}`;
+        const folderRes = await fetch(folderUrl, {
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "XUI-Admin",
+          },
+        });
 
-        const metaSha = await getFileSha(`components/${cleanId}/meta.json`);
-        if (metaSha) {
-          const delMetaRes = await fetch(
-            `https://api.github.com/repos/${repoOwner}/${repoName}/contents/components/${cleanId}/meta.json`,
-            {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${githubToken}`,
-                Accept: "application/vnd.github.v3+json",
-                "User-Agent": "XUI-Admin",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                message: `delete(meta): remove ${cleanId} metadata`,
-                sha: metaSha,
-              }),
+        if (folderRes.ok) {
+          const files = await folderRes.json();
+          if (Array.isArray(files)) {
+            for (const file of files) {
+              if (file.sha && file.path) {
+                const delRes = await fetch(
+                  `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${file.path}`,
+                  {
+                    method: "DELETE",
+                    headers: {
+                      Authorization: `Bearer ${githubToken}`,
+                      Accept: "application/vnd.github.v3+json",
+                      "User-Agent": "XUI-Admin",
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      message: `delete: remove ${file.path} for component ${cleanId}`,
+                      sha: file.sha,
+                    }),
+                  }
+                );
+                if (!delRes.ok && delRes.status !== 404) {
+                  const errTxt = await delRes.text();
+                  console.warn(`Failed to delete ${file.path}: ${errTxt}`);
+                }
+              }
             }
-          );
-          if (!delMetaRes.ok) {
-            const errTxt = await delMetaRes.text();
-            throw new Error(`GitHub DELETE meta.json failed (${delMetaRes.status}): ${errTxt}`);
           }
         }
 

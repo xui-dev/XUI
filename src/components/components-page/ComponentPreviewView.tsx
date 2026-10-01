@@ -169,7 +169,7 @@ export default function ComponentPreviewView({
           {/* Scaled Component Container */}
           <div
             key={refreshKey}
-            className={`flex items-center justify-center transition-all duration-300 ${
+            className={`w-full flex items-center justify-center transition-all duration-300 ${
               isRefreshing ? "opacity-30 scale-95" : "opacity-100 scale-100"
             }`}
             style={{

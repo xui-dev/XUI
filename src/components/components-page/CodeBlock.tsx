@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import CopyButton from "@/components/ui/CopyButton";
+import { Code2 } from "lucide-react";
 
 export interface CodeBlockProps {
   children: React.ReactNode;
@@ -140,7 +141,7 @@ export interface XUICodeBlockProps {
   code: string;
   language?: string;
   filename: string;
-  frameworkBadge: string;
+  frameworkBadge?: string;
   badgeColor?: string;
   /** accent bar color on the left edge of the header (tailwind bg class) */
   accentBar?: string;
@@ -235,12 +236,14 @@ export function XUICodeBlock({
         />
 
         {/* Left: badge + filename */}
-        <div className="relative flex items-center gap-3 pl-1 sm:pl-2">
-          {/* Framework badge pill */}
-          {frameworkBadge && <FrameworkBadge name={frameworkBadge} />}
-
-          {/* Separator */}
-          <span className="text-white/[0.15] text-sm select-none">/</span>
+        <div className="relative flex items-center gap-2 pl-1 sm:pl-2">
+          {/* Framework badge pill (if provided) */}
+          {frameworkBadge && (
+            <>
+              <FrameworkBadge name={frameworkBadge} />
+              <span className="text-white/[0.15] text-sm select-none">/</span>
+            </>
+          )}
 
           {/* Filename */}
           <span className="text-neutral-300 text-xs font-mono tracking-tight font-medium">

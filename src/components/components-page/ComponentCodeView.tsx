@@ -127,13 +127,51 @@ export default function ComponentCodeView({ component }: ComponentCodeViewProps)
   );
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col gap-2.5 sm:gap-3.5 w-full max-w-5xl mx-auto">
+      {/* ── Separate Language Switcher Bar (Detached from Mac Window) ── */}
+      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-[#0a0c16]/85 backdrop-blur-2xl border border-white/[0.14] shadow-[0_12px_32px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2)] w-fit self-start overflow-x-auto no-scrollbar">
+        <button
+          type="button"
+          className="relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-[13px] font-semibold bg-gradient-to-b from-white/[0.11] to-white/[0.04] text-white border border-white/[0.14] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.18)] cursor-pointer whitespace-nowrap"
+        >
+          {/* React Logo */}
+          <svg
+            className="w-4 h-4 text-[#00D8FF] shrink-0"
+            viewBox="0 0 115.3 100"
+            fill="currentColor"
+          >
+            <ellipse cx="57.65" cy="50" rx="16.7" ry="16.7" fill="#00D8FF" />
+            <path
+              d="M57.65,0 C42.75,0 30.7,22.4 30.7,50 C30.7,77.6 42.75,100 57.65,100 C72.55,100 84.6,77.6 84.6,50 C84.6,22.4 72.55,0 57.65,0 Z"
+              fill="none"
+              stroke="#00D8FF"
+              strokeWidth="6"
+              transform="rotate(30 57.65 50)"
+            />
+            <path
+              d="M57.65,0 C42.75,0 30.7,22.4 30.7,50 C30.7,77.6 42.75,100 57.65,100 C72.55,100 84.6,77.6 84.6,50 C84.6,22.4 72.55,0 57.65,0 Z"
+              fill="none"
+              stroke="#00D8FF"
+              strokeWidth="6"
+              transform="rotate(90 57.65 50)"
+            />
+            <path
+              d="M57.65,0 C42.75,0 30.7,22.4 30.7,50 C30.7,77.6 42.75,100 57.65,100 C72.55,100 84.6,77.6 84.6,50 C84.6,22.4 72.55,0 57.65,0 Z"
+              fill="none"
+              stroke="#00D8FF"
+              strokeWidth="6"
+              transform="rotate(150 57.65 50)"
+            />
+          </svg>
+          <span>React</span>
+        </button>
+      </div>
+
       {/* Single TypeScript (TSX = TypeScript + Tailwind) code block */}
       <XUICodeBlock
         code={component.typescriptCode || component.reactCode}
         language="tsx"
         filename={`${capitalize(component.slug)}.tsx`}
-        frameworkBadge="TypeScript + Tailwind"
         badgeColor="text-blue-400 bg-blue-500/15 border-blue-500/30"
         accentBar="bg-blue-500"
         extraActions={downloadDropdown}

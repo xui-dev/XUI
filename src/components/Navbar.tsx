@@ -53,7 +53,7 @@ export default function Navbar() {
   const userInitial = fullName.charAt(0).toUpperCase();
 
   return (
-    <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.25rem)] sm:w-[calc(100%-3.5rem)] lg:w-[calc(100%-5rem)] max-w-7xl pointer-events-none flex flex-col items-center transition-all duration-300">
+    <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.25rem)] sm:w-[calc(100%-3.5rem)] lg:w-[calc(100%-5rem)] max-w-[1720px] pointer-events-none flex flex-col items-center transition-all duration-300">
       {/* ══════════════════════════════════════════════════════════════════
           DESKTOP NAVIGATION (Dual Island Dock on sm and up)
       ══════════════════════════════════════════════════════════════════ */}

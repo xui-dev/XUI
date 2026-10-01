@@ -7,7 +7,8 @@ export type ComponentCategory =
   | "inputs"
   | "forms"
   | "patterns"
-  | "footer"
+  | "button"
+  | "buttons"
   | "navbar"
   | "background"
   | "3d-web-templates";
@@ -43,7 +44,7 @@ export const CATEGORIES = [
   { id: "inputs", label: "Inputs" },
   { id: "forms", label: "Forms" },
   { id: "patterns", label: "Patterns" },
-  { id: "footer", label: "Footer" },
+  { id: "button", label: "Button" },
   { id: "navbar", label: "Navbar" },
   { id: "background", label: "Backgrounds" },
   { id: "3d-web-templates", label: "3D Web Templates" },

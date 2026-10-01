@@ -37,8 +37,14 @@ export default function SavedPage() {
                 slug: data.name,
                 title: data.title || id,
                 description: data.description || "",
-                category: data.category || "patterns",
-                categoryLabel: data.categoryLabel || "Component",
+                category:
+                  data.category === "footer"
+                    ? "button"
+                    : data.category || "patterns",
+                categoryLabel:
+                  data.categoryLabel?.toLowerCase() === "footer"
+                    ? "Button"
+                    : data.categoryLabel || "Component",
                 author: data.author || "XUI",
                 authorHandle: data.authorHandle || "@xui_dev",
                 authorAvatar: "/XUI.png",
@@ -91,7 +97,7 @@ export default function SavedPage() {
         <div className="absolute top-60 right-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[160px]" />
       </div>
 
-      <main className="relative z-10 flex-1 pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full flex flex-col gap-8">
+      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-24 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full flex flex-col gap-8">
         {/* Navigation / Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
           <div>
@@ -121,7 +127,7 @@ export default function SavedPage() {
             <span className="text-xs text-neutral-500 font-mono">Loading saved components...</span>
           </div>
         ) : activeComponents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             {activeComponents.map((component) => (
               <ComponentCard key={component.id} component={component} />
             ))}

@@ -71,25 +71,70 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanId = id.trim().toLowerCase().replace(/[^a-z0-9-_]/g, "-");
-    const parsedDeps = Array.isArray(dependencies)
+    const cleanId = id
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    // Automatically detect imports from source code
+    const autoDeps: string[] = [];
+    const importRegex = /(?:import\s+(?:[\w\s{},*]+from\s+)?['"]|export\s+(?:[\w\s{},*]+from\s+)?['"])([^'"]+)['"]/g;
+    let match;
+    while ((match = importRegex.exec(code)) !== null) {
+      const specifier = match[1].trim();
+      if (
+        !specifier.startsWith(".") &&
+        !specifier.startsWith("/") &&
+        !specifier.startsWith("@/") &&
+        !specifier.startsWith("http:") &&
+        !specifier.startsWith("https:") &&
+        specifier !== "react" &&
+        !specifier.startsWith("react/") &&
+        specifier !== "react-dom" &&
+        !specifier.startsWith("react-dom/")
+      ) {
+        let pkgName = specifier;
+        if (specifier.startsWith("@")) {
+          const parts = specifier.split("/");
+          pkgName = parts.slice(0, 2).join("/");
+        } else {
+          pkgName = specifier.split("/")[0];
+        }
+        if (pkgName && !autoDeps.includes(pkgName)) {
+          autoDeps.push(pkgName);
+        }
+      }
+    }
+
+    const userDeps = Array.isArray(dependencies)
       ? dependencies
       : typeof dependencies === "string"
       ? dependencies.split(",").map((s) => s.trim()).filter(Boolean)
       : [];
 
+    const finalDeps = Array.from(new Set([...userDeps, ...autoDeps]));
+
     const finalJsCode = jsCode && jsCode.trim() ? jsCode : stripTypeScript(code);
+
+    const cleanCategory = category === "footer" ? "button" : (category || "patterns");
+    const cleanCategoryLabel =
+      categoryLabel && categoryLabel.toLowerCase() !== "footer"
+        ? categoryLabel
+        : cleanCategory === "button"
+        ? "Button"
+        : category || "Patterns";
 
     // 2. Define metadata object
     const metaData = {
       name: cleanId,
       title,
       description: description || "",
-      category: category || "patterns",
-      categoryLabel: categoryLabel || category || "Patterns",
+      category: cleanCategory,
+      categoryLabel: cleanCategoryLabel,
       author: body.author && typeof body.author === "string" && body.author.trim() ? body.author.trim() : "XUI",
       authorHandle: body.authorHandle && typeof body.authorHandle === "string" && body.authorHandle.trim() ? body.authorHandle.trim() : "@xui_dev",
-      dependencies: parsedDeps,
+      dependencies: finalDeps,
       registryDependencies: [],
       files: [
         {

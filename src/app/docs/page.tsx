@@ -404,7 +404,7 @@ export default function DocsPage() {
       </div>
 
       {/* ── Main Layout Architecture (Sidebar + Content Panel) ── */}
-      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto w-full flex flex-col">
+      <main className="relative z-10 flex-1 pt-28 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full flex flex-col">
         {/* ── Top Header Navigation Bar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/[0.08]">
           <div className="flex flex-col gap-1.5">
