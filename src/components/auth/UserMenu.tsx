@@ -14,7 +14,6 @@ import {
   BookOpen,
   Flag,
   ChevronDown,
-  Sparkles,
 } from "lucide-react";
 
 export default function UserMenu() {
@@ -191,13 +190,10 @@ export default function UserMenu() {
               <Link
                 href="/admin"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-blue-300 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-all mt-1"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-200 hover:text-white bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.10] hover:border-white/[0.20] transition-all mt-1"
               >
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-blue-400" />
-                  <span>Admin Dashboard</span>
-                </div>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-blue-200">
+                <span>Admin Dashboard</span>
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-md bg-white/[0.08] border border-white/[0.12] text-neutral-300">
                   Admin
                 </span>
               </Link>

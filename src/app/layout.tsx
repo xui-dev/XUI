@@ -69,7 +69,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-black text-white m-0 p-0 overflow-x-hidden select-none">
+      <body className="min-h-full flex flex-col bg-black text-white m-0 p-0 overflow-x-clip select-none">
         <LanguageProvider>
           <AuthProvider>
             {children}

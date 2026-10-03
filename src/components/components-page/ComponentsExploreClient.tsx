@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import LineSidebar from "@/components/components-page/LineSidebar";
 import ComponentCard from "@/components/components-page/ComponentCard";
@@ -11,11 +12,66 @@ export interface ComponentsExploreClientProps {
   initialComponents: ComponentItem[];
 }
 
+function matchCategory(compCategory: string, compLabel: string | undefined, selectedId: string): boolean {
+  if (selectedId === "all") return true;
+  if (compCategory === selectedId) return true;
+  if (selectedId === "button") {
+    return (
+      compCategory === "buttons" ||
+      compCategory === "footer" ||
+      compLabel?.toLowerCase() === "button" ||
+      compLabel?.toLowerCase() === "buttons" ||
+      compLabel?.toLowerCase() === "footer"
+    );
+  }
+  if (selectedId === "3d-web-templates") {
+    return (
+      compCategory === "3d-web-templates" ||
+      compCategory === "3d-websites" ||
+      compCategory === "3d" ||
+      compCategory === "templates" ||
+      compLabel?.toLowerCase().includes("3d") ||
+      false
+    );
+  }
+  return false;
+}
+
+function findCategoryIndex(slugOrId: string | null): number {
+  if (!slugOrId) return 0;
+  const lower = slugOrId.toLowerCase().trim();
+  const foundIdx = CATEGORIES.findIndex(
+    (cat) =>
+      cat.id.toLowerCase() === lower ||
+      cat.label.toLowerCase() === lower ||
+      (cat.id === "3d-web-templates" &&
+        (lower === "3d-websites" ||
+         lower === "3d" ||
+         lower === "3d-web-templates" ||
+         lower === "3d-web-templet" ||
+         lower === "3d-templates"))
+  );
+  return foundIdx >= 0 ? foundIdx : 0;
+}
+
 export default function ComponentsExploreClient({
   initialComponents,
 }: ComponentsExploreClientProps) {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(() => findCategoryIndex(categoryParam));
+  const contentRef = useRef<HTMLElement>(null);
+
+  // Sync category index whenever the URL search param changes (e.g. clicking Navbar button)
+  useEffect(() => {
+    const idx = findCategoryIndex(categoryParam);
+    setActiveCategoryIndex(idx);
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [categoryParam]);
 
   // Categories list for LineSidebar
   const categoryLabels = useMemo(() => {
@@ -24,25 +80,30 @@ export default function ComponentsExploreClient({
 
   const selectedCategory = CATEGORIES[activeCategoryIndex] || CATEGORIES[0];
 
+  const handleCategorySelect = (index: number) => {
+    setActiveCategoryIndex(index);
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const cat = CATEGORIES[index];
+    if (cat && cat.id !== "all") {
+      window.history.replaceState(null, "", `/components?category=${cat.id}`);
+    } else {
+      window.history.replaceState(null, "", `/components`);
+    }
+  };
+
   // Filtered components based on category & search
   const filteredComponents = useMemo(() => {
     return initialComponents.filter((comp) => {
-      const matchesCategory =
-        selectedCategory.id === "all" ||
-        comp.category === selectedCategory.id ||
-        (selectedCategory.id === "button" &&
-          (comp.category === "buttons" ||
-            (comp.category as string) === "footer" ||
-            comp.categoryLabel?.toLowerCase() === "button" ||
-            comp.categoryLabel?.toLowerCase() === "buttons" ||
-            comp.categoryLabel?.toLowerCase() === "footer"));
+      const matchesCategory = matchCategory(comp.category, comp.categoryLabel, selectedCategory.id);
 
       const query = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
         comp.title.toLowerCase().includes(query) ||
         comp.description.toLowerCase().includes(query) ||
-        comp.categoryLabel.toLowerCase().includes(query);
+        comp.categoryLabel?.toLowerCase().includes(query);
 
       return matchesCategory && matchesSearch;
     });
@@ -51,7 +112,7 @@ export default function ComponentsExploreClient({
   return (
     <div
       dir="ltr"
-      className="min-h-screen bg-black text-white selection:bg-blue-600/30 selection:text-blue-200 overflow-x-hidden flex flex-col"
+      className="min-h-screen lg:h-screen lg:overflow-hidden bg-black text-white selection:bg-blue-600/30 selection:text-blue-200 overflow-x-clip flex flex-col"
     >
       {/* ── Fixed Floating Navbar Dock ── */}
       <Navbar />
@@ -63,21 +124,21 @@ export default function ComponentsExploreClient({
       </div>
 
       {/* ── Main Layout Container ── */}
-      <main className="relative z-10 flex-1 pt-24 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full">
-        {/* Hero Title Section */}
-        <div className="mb-6 sm:mb-12 flex flex-col items-start gap-2">
-          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight text-white select-text">
+      <main className="relative z-10 flex-1 pt-24 sm:pt-32 lg:pt-28 pb-8 lg:pb-6 px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1720px] mx-auto w-full flex flex-col min-h-0 lg:h-full">
+        {/* ── Mobile-Only Hero Title ── */}
+        <div className="mb-6 flex flex-col items-start gap-2 lg:hidden">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white select-text">
             Explore Components
           </h1>
-          <p className="text-neutral-400 text-xs sm:text-base max-w-2xl leading-relaxed select-text">
+          <p className="text-neutral-400 text-xs sm:text-sm max-w-2xl leading-relaxed select-text">
             High-performance kinetic UI components ready to drop into your React applications.
           </p>
         </div>
 
         {/* ── Two Column Architecture (Sidebar + Grid) ── */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start flex-1 min-h-0 w-full lg:h-full">
           {/* ── Left Sidebar: Search + LineSidebar on desktop / Chips on mobile ── */}
-          <aside className="w-full lg:w-60 xl:w-64 shrink-0 flex flex-col gap-4 lg:gap-6 lg:sticky lg:top-28">
+          <aside className="w-full lg:w-60 xl:w-64 shrink-0 flex flex-col gap-4 lg:gap-5 lg:h-full lg:overflow-y-auto no-scrollbar pb-6">
             {/* Search Box */}
             <div className="relative w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
@@ -112,21 +173,13 @@ export default function ComponentsExploreClient({
                 const count =
                   cat.id === "all"
                     ? initialComponents.length
-                    : initialComponents.filter((c) =>
-                        c.category === cat.id ||
-                        (cat.id === "button" &&
-                          (c.category === "buttons" ||
-                            (c.category as string) === "footer" ||
-                            c.categoryLabel?.toLowerCase() === "button" ||
-                            c.categoryLabel?.toLowerCase() === "buttons" ||
-                            c.categoryLabel?.toLowerCase() === "footer"))
-                      ).length;
+                    : initialComponents.filter((c) => matchCategory(c.category, c.categoryLabel, cat.id)).length;
 
                 return (
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setActiveCategoryIndex(idx)}
+                    onClick={() => handleCategorySelect(idx)}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 active:scale-95 ${
                       isSelected
                         ? "bg-blue-600 text-white shadow-[0_0_16px_rgba(37,99,235,0.4)] border border-blue-400/40"
@@ -158,7 +211,7 @@ export default function ComponentsExploreClient({
               <LineSidebar
                 items={categoryLabels}
                 activeIndex={activeCategoryIndex}
-                onItemClick={(index) => setActiveCategoryIndex(index)}
+                onItemClick={(index) => handleCategorySelect(index)}
                 accentColor="#2563EB"
                 textColor="#9CA3AF"
                 markerColor="#374151"
@@ -171,8 +224,21 @@ export default function ComponentsExploreClient({
             </div>
           </aside>
 
-          {/* ── Right Column: 3x3 Components Grid ── */}
-          <section className="flex-1 w-full flex flex-col gap-6">
+          {/* ── Right Column: 3x3 Components Grid & Dedicated Scroll Pane ── */}
+          <section
+            ref={contentRef}
+            className="flex-1 w-full flex flex-col gap-6 lg:h-full lg:overflow-y-auto pr-1 sm:pr-2 lg:pr-3 pb-24 custom-scrollbar"
+          >
+            {/* ── Desktop-Only Hero Title (Scrolls naturally inside components area) ── */}
+            <div className="hidden lg:flex flex-col items-start gap-2 pt-1 pb-2">
+              <h1 className="text-3xl xl:text-5xl font-extrabold tracking-tight text-white select-text">
+                Explore Components
+              </h1>
+              <p className="text-neutral-400 text-sm xl:text-base max-w-2xl leading-relaxed select-text">
+                High-performance kinetic UI components ready to drop into your React applications.
+              </p>
+            </div>
+
             {/* Category Stats Header */}
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
               <div className="flex items-center gap-2.5">
@@ -215,7 +281,7 @@ export default function ComponentsExploreClient({
                   type="button"
                   onClick={() => {
                     setSearchQuery("");
-                    setActiveCategoryIndex(0);
+                    handleCategorySelect(0);
                   }}
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-[0_4px_16px_rgba(37,99,235,0.35)] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
                 >

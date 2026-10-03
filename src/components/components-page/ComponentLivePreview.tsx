@@ -110,6 +110,7 @@ function ResponsiveNativeScaler({
   const containerRef = useRef<HTMLDivElement>(null);
   const scalerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!autoScale) return;
@@ -118,16 +119,35 @@ function ResponsiveNativeScaler({
     if (!container || !scaler) return;
 
     function recalculate() {
-      if (!container || !scaler || !scaler.firstElementChild) return;
+      if (!container || !scaler) return;
+      const child = scaler.firstElementChild as HTMLElement | null;
+      if (!child) return;
+
       const availW = container.clientWidth;
       const availH = container.clientHeight;
       if (availW <= 0 || availH <= 0) return;
 
-      const child = scaler.firstElementChild as HTMLElement;
+      // Temporarily reset zoom to 1 to measure true unzoomed natural dimensions
+      const prevZoom = scaler.style.zoom;
+      scaler.style.zoom = "1";
       const rect = child.getBoundingClientRect();
-      const currentScale = scale || 1;
-      const naturalW = rect.width / currentScale;
-      const naturalH = rect.height / currentScale;
+      let naturalW = child.offsetWidth || rect.width;
+      let naturalH = child.offsetHeight || rect.height;
+
+      if (scaler.children.length > 1) {
+        let minX = rect.left, maxX = rect.right, minY = rect.top, maxY = rect.bottom;
+        for (let i = 1; i < scaler.children.length; i++) {
+          const cr = scaler.children[i].getBoundingClientRect();
+          if (cr.left < minX) minX = cr.left;
+          if (cr.right > maxX) maxX = cr.right;
+          if (cr.top < minY) minY = cr.top;
+          if (cr.bottom > maxY) maxY = cr.bottom;
+        }
+        naturalW = Math.max(naturalW, maxX - minX);
+        naturalH = Math.max(naturalH, maxY - minY);
+      }
+
+      scaler.style.zoom = prevZoom;
 
       if (naturalW <= 0 || naturalH <= 0) return;
 
@@ -137,30 +157,48 @@ function ResponsiveNativeScaler({
 
       const scaleX = targetW / naturalW;
       const scaleY = targetH / naturalH;
+      const rawScale = Math.min(scaleX, scaleY);
 
-      let newScale = Math.min(scaleX, scaleY);
-      if (newScale >= 0.95) {
+      const MAX_UPSCALE = 3.0;
+      const TARGET_FILL = 0.60;
+
+      let newScale: number;
+      if (rawScale < 0.88) {
+        // Component larger than container → scale down
+        newScale = Math.max(Math.floor(rawScale * 100) / 100, 0.15);
+      } else if (rawScale <= 1.10) {
+        // Near-perfect fit
         newScale = 1;
       } else {
-        newScale = Math.max(Math.floor(newScale * 100) / 100, 0.2);
+        // Component smaller than container → smart upscale
+        const shortSide = Math.min(availW, availH) - padding;
+        const targetSize = shortSide * TARGET_FILL;
+        const majorDimension = Math.max(naturalW, naturalH);
+        const targetZoom = targetSize / majorDimension;
+        newScale = Math.min(targetZoom, MAX_UPSCALE, rawScale);
+        newScale = Math.floor(newScale * 20) / 20; // round to nearest 0.05
+        newScale = Math.max(newScale, 1);
       }
 
       setScale(newScale);
+      setReady(true);
     }
 
     const ro = new ResizeObserver(() => recalculate());
     ro.observe(container);
 
     requestAnimationFrame(recalculate);
-    const t1 = setTimeout(recalculate, 80);
-    const t2 = setTimeout(recalculate, 300);
+    const t1 = setTimeout(recalculate, 60);
+    const t2 = setTimeout(recalculate, 250);
+    const tFallback = setTimeout(() => setReady(true), 350);
 
     return () => {
       ro.disconnect();
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(tFallback);
     };
-  }, [autoScale, scale]);
+  }, [autoScale]);
 
   if (!autoScale) {
     return <>{children}</>;
@@ -174,9 +212,9 @@ function ResponsiveNativeScaler({
       <div
         ref={scalerRef}
         style={{
-          transform: `scale(${scale})`,
-          transformOrigin: "center center",
-          transition: "transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
+          zoom: scale,
+          opacity: ready ? 1 : 0,
+          transition: "opacity 0.15s ease, zoom 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
         className="flex items-center justify-center"
       >
@@ -285,10 +323,27 @@ function LiveIframeSandbox({
           const availH = container.clientHeight || container.offsetHeight;
           if (availW <= 0 || availH <= 0) return;
 
+          // Temporarily reset zoom to 1 to measure true unzoomed natural dimensions
+          const prevZoom = target.style.zoom;
+          target.style.zoom = '1';
           const rect = child.getBoundingClientRect();
-          const currentScale = target.__currentScale || 1;
-          const naturalW = rect.width / currentScale;
-          const naturalH = rect.height / currentScale;
+          let naturalW = child.offsetWidth || rect.width;
+          let naturalH = child.offsetHeight || rect.height;
+
+          if (target.children.length > 1) {
+            let minX = rect.left, maxX = rect.right, minY = rect.top, maxY = rect.bottom;
+            for (let i = 1; i < target.children.length; i++) {
+              const cr = target.children[i].getBoundingClientRect();
+              if (cr.left < minX) minX = cr.left;
+              if (cr.right > maxX) maxX = cr.right;
+              if (cr.top < minY) minY = cr.top;
+              if (cr.bottom > maxY) maxY = cr.bottom;
+            }
+            naturalW = Math.max(naturalW, maxX - minX);
+            naturalH = Math.max(naturalH, maxY - minY);
+          }
+
+          target.style.zoom = prevZoom;
 
           if (naturalW <= 0 || naturalH <= 0) return;
 
@@ -298,20 +353,35 @@ function LiveIframeSandbox({
 
           const scaleX = targetW / naturalW;
           const scaleY = targetH / naturalH;
+          const rawScale = Math.min(scaleX, scaleY);
 
-          let scale = Math.min(scaleX, scaleY);
-          if (scale >= 0.95) {
+          const MAX_UPSCALE = 3.0;
+          const TARGET_FILL = 0.60;
+
+          let scale;
+          if (rawScale < 0.88) {
+            // Component larger than card → scale down
+            scale = Math.max(Math.floor(rawScale * 100) / 100, 0.15);
+          } else if (rawScale <= 1.10) {
+            // Near-perfect fit
             scale = 1;
           } else {
-            scale = Math.floor(scale * 100) / 100;
-            scale = Math.max(scale, 0.2);
+            // Component smaller than card → smart upscale
+            const shortSide = Math.min(availW, availH) - padding;
+            const targetSize = shortSide * TARGET_FILL;
+            const majorDimension = Math.max(naturalW, naturalH);
+            const targetZoom = targetSize / majorDimension;
+            scale = Math.min(targetZoom, MAX_UPSCALE, rawScale);
+            scale = Math.floor(scale * 20) / 20; // round to nearest 0.05
+            scale = Math.max(scale, 1);
           }
 
-          if (Math.abs(scale - currentScale) > 0.01) {
+          const currentScale = parseFloat(target.style.zoom) || 1;
+          if (Math.abs(scale - currentScale) > 0.01 || target.style.opacity !== '1') {
             isUpdating = true;
-            target.__currentScale = scale;
-            target.style.transform = "scale(" + scale + ")";
-            target.style.transformOrigin = "center center";
+            target.style.zoom = String(scale);
+            target.style.transform = 'none';
+            target.style.opacity = '1';
             isUpdating = false;
           }
         }
@@ -327,7 +397,46 @@ function LiveIframeSandbox({
         setTimeout(recalculate, 60);
         setTimeout(recalculate, 200);
         setTimeout(recalculate, 600);
+        setTimeout(() => {
+          if (target && target.style.opacity !== '1') {
+            target.style.opacity = '1';
+          }
+        }, 400);
       }
+    `;
+
+    const navigationGuardScript = `
+      // Navigation Sandbox Guard: Intercept all link clicks and form submits to prevent reloading or hijacking the preview
+      (function() {
+        document.addEventListener('click', function(e) {
+          var el = e.target;
+          while (el && el !== document) {
+            if (el.tagName === 'A' || el.tagName === 'AREA') {
+              // Intercept browser frame navigation without breaking React synthetic event propagation
+              e.preventDefault();
+              break;
+            }
+            el = el.parentElement;
+          }
+        }, true);
+
+        document.addEventListener('submit', function(e) {
+          e.preventDefault();
+        }, true);
+
+        try {
+          window.open = function() { return null; };
+          if (window.location) {
+            window.location.assign = function() {};
+            window.location.replace = function() {};
+          }
+        } catch (_) {}
+
+        window.addEventListener('beforeunload', function(e) {
+          e.preventDefault();
+          return false;
+        });
+      })();
     `;
 
     if (isHtmlOnly) {
@@ -336,7 +445,11 @@ function LiveIframeSandbox({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base target="_blank">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    ${navigationGuardScript}
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
@@ -365,9 +478,8 @@ function LiveIframeSandbox({
       display: flex;
       align-items: center;
       justify-content: center;
-      transform-origin: center center;
-      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: transform;
+      opacity: 0;
+      transition: opacity 0.15s ease, zoom 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
     ::-webkit-scrollbar { display: none; }
   </style>
@@ -380,7 +492,7 @@ function LiveIframeSandbox({
   </div>
   <script>
     ${autoFitScript}
-    ${autoScale ? `setupAutoFit(document.getElementById('root'), document.getElementById('preview-scaler'));` : ""}
+    ${autoScale ? `setupAutoFit(document.getElementById('root'), document.getElementById('preview-scaler'));` : `const s = document.getElementById('preview-scaler'); if (s) s.style.opacity = '1';`}
   </script>
 </body>
 </html>`;
@@ -422,7 +534,11 @@ function LiveIframeSandbox({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base target="_blank">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    ${navigationGuardScript}
+  </script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -465,9 +581,8 @@ function LiveIframeSandbox({
       display: flex;
       align-items: center;
       justify-content: center;
-      transform-origin: center center;
-      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: transform;
+      opacity: 0;
+      transition: opacity 0.15s ease, zoom 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
     ::-webkit-scrollbar { display: none; }
   </style>
@@ -509,7 +624,7 @@ function LiveIframeSandbox({
           const root = ReactDOMClient.createRoot(scalerEl);
           root.render(React.createElement(ComponentToRender));
 
-          ${autoScale ? `setupAutoFit(rootEl, scalerEl);` : ""}
+          ${autoScale ? `setupAutoFit(rootEl, scalerEl);` : `scalerEl.style.opacity = '1';`}
         } else if (rootEl) {
           rootEl.innerHTML = '<div style="color:#a3a3a3;font-size:12px;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;">Component rendered without visual export</div>';
         }
@@ -524,7 +639,7 @@ function LiveIframeSandbox({
                   <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
                   <span>Render Error</span>
                 </div>
-                <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">
+                <button onclick="window.__remount && window.__remount()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #e2e8f0; padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">
                   Retry
                 </button>
               </div>
@@ -537,6 +652,7 @@ function LiveIframeSandbox({
       }
     }
 
+    window.__remount = mountComponent;
     mountComponent();
   </script>
 </body>

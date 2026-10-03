@@ -37,6 +37,7 @@ export interface ComponentItem {
 
 export const CATEGORIES = [
   { id: "all", label: "Overview" },
+  { id: "3d-web-templates", label: "3D web templates" },
   { id: "checkboxes", label: "Checkboxes" },
   { id: "toggle-switches", label: "Toggle switches" },
   { id: "cards", label: "Cards" },
@@ -47,7 +48,6 @@ export const CATEGORIES = [
   { id: "button", label: "Button" },
   { id: "navbar", label: "Navbar" },
   { id: "background", label: "Backgrounds" },
-  { id: "3d-web-templates", label: "3D Web Templates" },
 ] as const;
 
 /**

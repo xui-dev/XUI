@@ -70,7 +70,7 @@ export default function Websites3DSection() {
         <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4 pointer-events-auto">
           {/* Primary CTA: Show Templates (Unified with the Blue Gradient Button from Image 2) */}
           <Link
-            href="/components"
+            href="/components?category=3d-web-templates"
             className="relative group overflow-hidden h-11 sm:h-12 px-6 sm:px-7 rounded-2xl
                        inline-flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold tracking-tight text-white
                        bg-gradient-to-r from-blue-600 to-indigo-600

@@ -43,3 +43,8 @@ next-env.d.ts
 # backups & archives
 *.zip
 
+# opennext & wrangler
+.open-next/
+.wrangler/
+.dev.vars
+
