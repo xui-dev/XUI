@@ -5,6 +5,12 @@ import { GAZE_MAP } from "@/data/gazeMap";
 import HeroSection from "@/components/HeroSection";
 import LaserOverlay from "@/components/LaserOverlay";
 import ParticleShowcaseSection from "@/components/landing/ParticleShowcaseSection";
+import CyberPreloader from "@/components/CyberPreloader";
+import {
+  getHeroFrameSrc,
+  getLaserFrameSrc,
+  getFlightFrameSrc,
+} from "@/lib/frames";
 
 const TOTAL_HERO_FRAMES = 240;
 const TOTAL_LASER_FRAMES = 96;
@@ -54,25 +60,37 @@ export default function RobotExperience() {
   const [isParticlesActive, setIsParticlesActive] = useState<boolean>(false);
   const [particlesOpacity, setParticlesOpacity] = useState<number>(0);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
+  const [loadedHeroCount, setLoadedHeroCount] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   // Animation frame loop id
   const animationFrameIdRef = useRef<number | null>(null);
 
-  const getHeroFrameSrc = (index: number) => {
-    const padded = String(index).padStart(3, "0");
-    return `/frame/ezgif-frame-${padded}.jpg`;
-  };
-
-  const getLaserFrameSrc = (index: number) => {
-    const padded = String(index).padStart(3, "0");
-    return `/laser/ezgif-frame-${padded}.jpg`;
-  };
-
-  const getFlightFrameSrc = (index: number) => {
-    const padded = String(index).padStart(3, "0");
-    return `/hide_robot/ezgif-frame-${padded}.jpg`;
-  };
+  // Fallback finder: locates closest available loaded frame to prevent any black flicker
+  const getNearestFrame = useCallback(
+    (
+      array: (HTMLImageElement | undefined)[],
+      targetIdx: number,
+      total: number
+    ): HTMLImageElement | undefined => {
+      const direct = array[targetIdx - 1];
+      if (direct && direct.complete && direct.naturalWidth > 0) {
+        return direct;
+      }
+      for (let r = 1; r < total; r++) {
+        const left = targetIdx - 1 - r;
+        if (left >= 0 && array[left]?.complete && array[left]?.naturalWidth) {
+          return array[left];
+        }
+        const right = targetIdx - 1 + r;
+        if (right < total && array[right]?.complete && array[right]?.naturalWidth) {
+          return array[right];
+        }
+      }
+      return lastDrawnImageRef.current ?? undefined;
+    },
+    []
+  );
 
   // 2D Gaze Solver
   const solveTargetFrame = useCallback(
@@ -195,19 +213,25 @@ export default function RobotExperience() {
         TOTAL_HERO_FRAMES,
         Math.max(1, Math.round(currentHeroFrameRef.current))
       );
-      drawImageOnCanvas(heroImagesRef.current[idx - 1]);
+      drawImageOnCanvas(
+        getNearestFrame(heroImagesRef.current, idx, TOTAL_HERO_FRAMES)
+      );
     } else if (mode === "laser") {
       const idx = Math.min(
         TOTAL_LASER_FRAMES,
         Math.max(1, Math.round(currentLaserFrameRef.current))
       );
-      drawImageOnCanvas(laserImagesRef.current[idx - 1]);
+      drawImageOnCanvas(
+        getNearestFrame(laserImagesRef.current, idx, TOTAL_LASER_FRAMES)
+      );
     } else if (mode === "flight") {
       const idx = Math.min(
         TOTAL_FLIGHT_FRAMES,
         Math.max(1, Math.round(currentFlightFrameRef.current))
       );
-      drawImageOnCanvas(flightImagesRef.current[idx - 1]);
+      drawImageOnCanvas(
+        getNearestFrame(flightImagesRef.current, idx, TOTAL_FLIGHT_FRAMES)
+      );
     } else {
       // Particles mode: draw clean void
       const ctx = canvas.getContext("2d", { alpha: false });
@@ -216,7 +240,7 @@ export default function RobotExperience() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
-  }, [drawImageOnCanvas]);
+  }, [drawImageOnCanvas, getNearestFrame]);
 
   // Progressive, staged loading with concurrency limits to prevent mobile memory exhaustion & connection pool starvation
   useEffect(() => {
@@ -224,7 +248,7 @@ export default function RobotExperience() {
     let idleLaserTimeout: ReturnType<typeof setTimeout> | null = null;
     let idleFlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Helper: load frame URLs with a bounded concurrency pool (6 parallel requests max)
+    // Helper: load frame URLs with a bounded concurrency pool (8 parallel requests) and off-thread decoding
     const loadBatch = (
       urls: string[],
       targetArray: (HTMLImageElement | undefined)[],
@@ -254,7 +278,14 @@ export default function RobotExperience() {
               pump();
             }
           };
-          img.onload = done;
+
+          img.onload = () => {
+            if ("decode" in img) {
+              img.decode().catch(() => {}).finally(done);
+            } else {
+              done();
+            }
+          };
           img.onerror = done;
         }
       };
@@ -280,12 +311,18 @@ export default function RobotExperience() {
       for (let j = 1; j <= TOTAL_LASER_FRAMES; j++) {
         laserUrls.push(getLaserFrameSrc(j));
       }
-      loadBatch(laserUrls, laserImagesRef.current, 6, undefined, () => {
+      loadBatch(laserUrls, laserImagesRef.current, 8, undefined, () => {
         // Laser completed: schedule idle flight loading
         if (!flightLoadingStartedRef.current && !isCancelled) {
-          idleFlightTimeout = setTimeout(() => {
-            startLoadingFlightRef.current();
-          }, 2000);
+          if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            (window as any).requestIdleCallback(() => {
+              startLoadingFlightRef.current();
+            });
+          } else {
+            idleFlightTimeout = setTimeout(() => {
+              startLoadingFlightRef.current();
+            }, 1000);
+          }
         }
       });
     };
@@ -299,10 +336,10 @@ export default function RobotExperience() {
       for (let k = 1; k <= TOTAL_FLIGHT_FRAMES; k++) {
         flightUrls.push(getFlightFrameSrc(k));
       }
-      loadBatch(flightUrls, flightImagesRef.current, 6);
+      loadBatch(flightUrls, flightImagesRef.current, 8);
     };
 
-    // 3. Hero frames: load with bounded concurrency (concurrency = 6)
+    // 3. Hero frames: load all 240 frames driving the big blue counter
     const heroUrls: string[] = [];
     for (let i = 1; i <= TOTAL_HERO_FRAMES; i++) {
       heroUrls.push(getHeroFrameSrc(i));
@@ -311,24 +348,38 @@ export default function RobotExperience() {
     loadBatch(
       heroUrls,
       heroImagesRef.current,
-      6,
+      8,
       (loaded) => {
+        setLoadedHeroCount(loaded);
         const pct = Math.round((loaded / TOTAL_HERO_FRAMES) * 100);
         setLoadingProgress(pct);
-        if (loaded >= 30) {
+        if (loaded >= TOTAL_HERO_FRAMES) {
           setIsLoaded(true);
         }
       },
       () => {
         setIsLoaded(true);
-        // Hero completed: pre-warm laser frames after 1.5s idle if user hasn't scrolled yet
+        // Pre-warm laser frames in background via idle callback
         if (!laserLoadingStartedRef.current && !isCancelled) {
-          idleLaserTimeout = setTimeout(() => {
-            startLoadingLaserRef.current();
-          }, 1500);
+          if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+            (window as any).requestIdleCallback(() => {
+              startLoadingLaserRef.current();
+            });
+          } else {
+            idleLaserTimeout = setTimeout(() => {
+              startLoadingLaserRef.current();
+            }, 800);
+          }
         }
       }
     );
+
+    // Safety fallback: ensure UI unlocks after 12s if majority of frames are ready
+    const safetyTimer = setTimeout(() => {
+      if (!isCancelled) {
+        setIsLoaded(true);
+      }
+    }, 12000);
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
@@ -337,6 +388,7 @@ export default function RobotExperience() {
       isCancelled = true;
       if (idleLaserTimeout) clearTimeout(idleLaserTimeout);
       if (idleFlightTimeout) clearTimeout(idleFlightTimeout);
+      clearTimeout(safetyTimer);
       window.removeEventListener("resize", resizeCanvas);
     };
   }, [drawImageOnCanvas, resizeCanvas]);
@@ -489,7 +541,11 @@ export default function RobotExperience() {
           Math.max(1, Math.round(currentHeroFrameRef.current))
         );
 
-        const img = heroImagesRef.current[frameToDraw - 1];
+        const img = getNearestFrame(
+          heroImagesRef.current,
+          frameToDraw,
+          TOTAL_HERO_FRAMES
+        );
         if (img) drawImageOnCanvas(img);
       }
       // 2. Laser Mode
@@ -506,7 +562,11 @@ export default function RobotExperience() {
 
         setCurrentLaserFrame(frameToDraw);
 
-        const img = laserImagesRef.current[frameToDraw - 1];
+        const img = getNearestFrame(
+          laserImagesRef.current,
+          frameToDraw,
+          TOTAL_LASER_FRAMES
+        );
         if (img) drawImageOnCanvas(img);
       }
       // 3. Flight Mode (Robot flight & shutdown)
@@ -521,7 +581,11 @@ export default function RobotExperience() {
           Math.max(1, Math.round(currentFlightFrameRef.current))
         );
 
-        const img = flightImagesRef.current[frameToDraw - 1];
+        const img = getNearestFrame(
+          flightImagesRef.current,
+          frameToDraw,
+          TOTAL_FLIGHT_FRAMES
+        );
         if (img) drawImageOnCanvas(img);
       }
       // 4. Particles Mode (Robot is gone)
@@ -672,20 +736,13 @@ export default function RobotExperience() {
           opacity={particlesOpacity}
         />
 
-        {/* Minimal loading bar at page initialization */}
-        {!isLoaded && (
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-700">
-            <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden backdrop-blur-md">
-              <div
-                className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full transition-all duration-150"
-                style={{ width: `${loadingProgress}%` }}
-              />
-            </div>
-            <span className="text-[11px] tracking-widest uppercase font-mono text-white/40">
-              Initializing Engine {loadingProgress}%
-            </span>
-          </div>
-        )}
+        {/* Full-screen Cyber Preloader with Giant 2-Digit Blue Counter (00 to 100) */}
+        <CyberPreloader
+          progress={loadingProgress}
+          isLoaded={isLoaded}
+          totalFrames={TOTAL_HERO_FRAMES}
+          loadedFrames={loadedHeroCount}
+        />
       </div>
     </div>
   );

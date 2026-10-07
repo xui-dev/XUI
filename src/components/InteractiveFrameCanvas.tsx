@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { GAZE_MAP } from "@/data/gazeMap";
+import { getHeroFrameSrc } from "@/lib/frames";
 
 const TOTAL_FRAMES = 240;
 const INITIAL_FRAME = 60; // Frame 60 looks straight/up at the user
@@ -23,10 +24,7 @@ export default function InteractiveFrameCanvas() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   // Helper to format frame filename
-  const getFrameSrc = (index: number) => {
-    const padded = String(index).padStart(3, "0");
-    return `/frame/ezgif-frame-${padded}.jpg`;
-  };
+  const getFrameSrc = (index: number) => getHeroFrameSrc(index);
 
   // Ultra-accurate 2D Gaze Solver: finds the exact frame matching cursor position
   const solveTargetFrame = useCallback((cursorX: number, cursorY: number, prevFrame: number): number => {

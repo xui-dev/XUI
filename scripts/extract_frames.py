@@ -84,8 +84,13 @@ def extract_frames(
         if frame.shape[1] != out_width or frame.shape[0] != out_height:
             frame = cv2.resize(frame, (out_width, out_height), interpolation=cv2.INTER_LANCZOS4)
 
-        filename = f"ezgif-frame-{frame_num:03d}.jpg"
-        out_path = os.path.join(output_dir, filename)
+        name_str = f"frame{frame_num:02d}.webp" if frame_num < 100 else f"frame{frame_num}.webp"
+        out_path = os.path.join(output_dir, name_str)
+        # Save as WebP if .webp or JPEG if .jpg
+        if name_str.endswith(".webp"):
+            encode_params = [cv2.IMWRITE_WEBP_QUALITY, quality]
+        else:
+            encode_params = [cv2.IMWRITE_JPEG_QUALITY, quality]
         cv2.imwrite(out_path, frame, encode_params)
         extracted += 1
 
@@ -97,7 +102,9 @@ def extract_frames(
     print(f"\n\n  OK: {extracted} اطار محفوظ في: {output_dir}")
 
     # التحقق من جودة الاطار الاوسط
-    mid_path = os.path.join(output_dir, f"ezgif-frame-{target_count // 2:03d}.jpg")
+    mid_num = target_count // 2
+    mid_name = f"frame{mid_num:02d}.webp" if mid_num < 100 else f"frame{mid_num}.webp"
+    mid_path = os.path.join(output_dir, mid_name)
     if os.path.exists(mid_path):
         try:
             from PIL import Image
